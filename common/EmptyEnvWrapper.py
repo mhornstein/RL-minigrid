@@ -9,10 +9,13 @@ class EnvWrapper(gym.Env):
     '''
     This wrapper enables environment customization
     '''
-    def __init__(self, env):
+    def __init__(self, env, step_reward=-0.01, goal_reward=10):
         env.reset() # we must reset the env: this places the agent and other elements on top of the board
         self.source_env = env
         self.reset()
+
+        self.step_reward = step_reward
+        self.goal_reward = goal_reward
 
     def reset(self): # open gym default implementation changes the board. override, as we do not want to change the board upon reset every time
         self.env = copy.deepcopy(self.source_env)
@@ -38,6 +41,13 @@ class EnvWrapper(gym.Env):
     def sample_action(self):
         return self.env.action_space.sample()
 
+    def step(self, action):
+        _ = self.env.step(action)
+        s_tag = self.get_current_state()
+        done = self.env.get_goal_pos() == self.env.get_position() # compare agent location to target location
+        r = self.goal_reward if done else self.step_reward
+        return s_tag, r, done
+
 # Testing
 if __name__ == '__main__':
     from common.RandomKeyMEnv_10 import RandomEmptyEnv_10
@@ -54,3 +64,4 @@ if __name__ == '__main__':
 
     action = env.sample_action()
     print(f'sampled action: {action}')
+    s_tag, r, done = env.step(action)
