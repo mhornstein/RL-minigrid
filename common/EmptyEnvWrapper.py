@@ -1,5 +1,6 @@
 import gym
 import copy
+import matplotlib.pyplot as plt
 
 agent_directions_space = 4
 
