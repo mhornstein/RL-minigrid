@@ -27,6 +27,25 @@ def init_results_files(tested_parameter, result_path):
 
     return train_result_file, test_result_file
 
+def evaluate_policy(env, policy, steps_cutoff):
+    '''
+    Evaluates a given policy on the given env for a limited steps_cutoff number of steps or until the environment is solved.
+    :return: A tuple containing two values:
+        - steps_count: The number of steps taken during the evaluation, capped at steps_cutoff.
+        - done: A boolean indicating whether the environment was solved during the evaluation.
+    :rtype: tuple
+    '''
+    state = env.reset()
+    done = False
+    steps_count = 0
+
+    while not done and steps_count < steps_cutoff:
+        action = policy(state)
+        state, reward, done = env.step(action)
+        steps_count += 1
+
+    return steps_count, done
+
 def run_experiment(env_params, algorithm_params,tested_parameter, tested_values):
     env_params_cpy = env_params.copy()
     algorithm_params_cpy = algorithm_params.copy()
@@ -73,7 +92,7 @@ def run_experiment(env_params, algorithm_params,tested_parameter, tested_values)
         # Step 2: Test #
         ################
         print('Start testing')
-        steps_count, done = 0, 0 # evaluate_policy(env, policy, steps_cutoff=steps_cutoff)
+        steps_count, done = evaluate_policy(env, policy, steps_cutoff=test_steps_cutoff)
 
         f = open(test_result_file, 'a')
         f.write(f'{parameter_value},{done},{steps_count}\n')

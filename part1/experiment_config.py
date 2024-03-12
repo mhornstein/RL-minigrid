@@ -25,7 +25,7 @@ test_num_episodes - the number of episodes for the evaluation
 test_steps_cutoff - maximal steps allowed per episode
 '''
 # test_steps_cutoff = 100
-test_steps_cutoff = 10
+test_steps_cutoff = 3
 
 # Tested env
 env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
