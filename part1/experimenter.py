@@ -2,6 +2,7 @@ import sys
 
 from algorithms.qlearning import q_learning
 from common.EmptyEnvWrapper import EnvWrapper
+from common.reports_util import log_training_process
 
 sys.path.append('../')
 
@@ -56,12 +57,10 @@ def run_experiment(env_params, algorithm_params,tested_parameter, tested_values)
         policy, states_visits_mean, done_count, episodes_steps, episodes_rewards = q_learning(**algorithm_params_cpy)
 
         # First - log training process
-        '''
         parameter_train_log_path = f'{train_log_path}/{tested_parameter}_{parameter_value}'  # Create training log path
         if not os.path.exists(parameter_train_log_path):
             os.makedirs(parameter_train_log_path)
-        log_training_process(experiment_log_path, states_visits_mean, episodes_steps, episodes_rewards) # TODO implement
-        '''
+        log_training_process(parameter_train_log_path, states_visits_mean, episodes_steps, episodes_rewards)
 
         # Then - log training results
         f = open(train_result_file, 'a')
