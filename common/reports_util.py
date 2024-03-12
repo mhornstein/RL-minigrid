@@ -62,15 +62,9 @@ def create_table(subplot, header, df):
     for spine in subplot.spines.values(): # remove redundent spines
         spine.set_visible(False)
 
-def plot_mean_steps(df, tested_parameter, ax):
-    df = df[[tested_parameter, 'total_steps_avg']]
-    sns.barplot(data=df, x=tested_parameter, y='total_steps_avg', palette=palette, ax=ax)
-    ax.set(xlabel=ax.get_xlabel().replace('_', ' '))
-    ax.set(ylabel='')
-
-def plot_done_episodes_count(df, tested_parameter, ax):
-    df = df[[tested_parameter, 'done_episodes_count']]
-    sns.barplot(data=df, x=tested_parameter, y='done_episodes_count', palette=palette, ax=ax)
+def plot_bar_chart(df, column_name, tested_parameter, ax):
+    df = df[[tested_parameter, column_name]]
+    sns.barplot(data=df, x=tested_parameter, y=column_name, palette=palette, ax=ax)
     ax.set(xlabel=ax.get_xlabel().replace('_', ' '))
     ax.set(ylabel='')
 
@@ -97,12 +91,16 @@ def create_tabular_method_report(plot_path, tested_parameter, train_result_file,
     df = pd.read_csv(train_result_file)
     total_episodes_count = df['total_episodes_count'].iloc[0]
 
-    ax = fig.add_subplot(gs[3, 0:3])
-    plot_done_episodes_count(df, tested_parameter, ax)
+    ax = fig.add_subplot(gs[3, 0:2])
+    plot_bar_chart(df, 'done_episodes_count', tested_parameter, ax)
     ax.set_title(f'Total episodes done out of {total_episodes_count}')
 
-    ax = fig.add_subplot(gs[3, 3:])
-    plot_mean_steps(df, tested_parameter, ax)
+    ax = fig.add_subplot(gs[3, 2:4])
+    plot_bar_chart(df, 'rewards_avg', tested_parameter, ax)
+    ax.set_title(f'Avg reward per {total_episodes_count} episodes')
+
+    ax = fig.add_subplot(gs[3, 4:])
+    plot_bar_chart(df, 'total_steps_avg', tested_parameter, ax)
     ax.set_title(f'Avg episode steps per {total_episodes_count} episodes')
 
     plt.savefig(f'{plot_path}/results_plot.png')
