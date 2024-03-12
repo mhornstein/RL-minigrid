@@ -5,3 +5,7 @@
 /.idea/misc.xml
 /.idea/modules.xml
 /.idea/vcs.xml
+/common/__pycache__/*.pyc
+/part1/results_alpha/
+/part1/results_goal_reward/
+/part1/results_step_reward/
