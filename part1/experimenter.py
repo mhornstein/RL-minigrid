@@ -1,7 +1,7 @@
 import sys
 
-from algorithms.qlearning import q_learning
-from common.EmptyEnvWrapper import EnvWrapper
+from algorithms.q_learning import q_learning
+from common.empty_env_wrapper import EnvWrapper
 from common.reports_util import log_training_process
 
 sys.path.append('../')

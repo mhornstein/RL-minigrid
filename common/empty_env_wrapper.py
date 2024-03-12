@@ -56,8 +56,8 @@ class EnvWrapper(gym.Env):
 
 # Testing
 if __name__ == '__main__':
-    from common.RandomKeyMEnv_10 import RandomEmptyEnv_10
-    from common.KeyFlatObsWrapper import KeyFlatObsWrapper
+    from common.random_key_m_env_10 import RandomEmptyEnv_10
+    from common.key_flat_obs_wrapper import KeyFlatObsWrapper
     import matplotlib.pyplot as plt
 
     source_env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
