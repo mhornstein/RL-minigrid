@@ -1,6 +1,4 @@
 import gym
-import random
-import numpy as np
 import copy
 
 agent_directions_space = 4
@@ -10,7 +8,14 @@ class EnvWrapper(gym.Env):
     This wrapper enables environment customization
     '''
     def __init__(self, env, step_reward=-0.01, goal_reward=10):
-        env.reset() # we must reset the env: this places the agent and other elements on top of the board
+        '''
+        Initializes the EnvWrapper.
+
+        Args:
+            env (gym.Env): The Gym environment to be wrapped. Important: this env must be initialized before wrapping (use env.reset())
+            step_reward (float, optional): The per-step reward or penalty. Default is -0.01.
+            goal_reward (float, optional): The reward for reaching the goal. Default is 10.
+        '''
         self.source_env = env
         self.reset()
 
@@ -54,7 +59,9 @@ if __name__ == '__main__':
     from common.KeyFlatObsWrapper import KeyFlatObsWrapper
     import matplotlib.pyplot as plt
 
-    env = EnvWrapper(KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array')))
+    source_env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
+    source_env.reset()  # we must reset the env: this places the agent and other elements on top of the board
+    env = EnvWrapper(source_env)
 
     state = env.reset()
     print(f'start_state: {state}')
