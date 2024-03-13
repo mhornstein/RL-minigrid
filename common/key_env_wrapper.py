@@ -7,33 +7,36 @@ agent_directions_space = 4
 key_state_space = 2
 door_state_space = 2
 
-GoalRewards = namedtuple('GoalReward', ['key', 'door'])
+GoalReward = namedtuple('GoalReward', ['key', 'door'])
 
-class EnvWrapper(gym.Env):
+class KeyEnvWrapper(gym.Env):
     '''
     This wrapper enables environment customization
     '''
-    def __init__(self, env, step_reward=-0.01, goal_rewards=GoalRewards(key=1, door=5)):
+    def __init__(self, env, step_reward=-0.01, goal_reward=GoalReward(key=1, door=5)):
         '''
         Initializes the EnvWrapper.
 
         Args:
             env (gym.Env): The Gym environment to be wrapped. Important: this env must be initialized before wrapping (use env.reset())
             step_reward (float, optional): The per-step reward or penalty. Default is -0.01.
-            goal_rewards (GoalRewards, optional): A namedtuple `GoalRewards(key, door)` specifying the rewards for the specific events within the environment.
+            goal_reward (GoalReward, optional): A namedtuple `GoalReward(key, door)` specifying the rewards for the specific events within the environment.
                                                  - `key` (float): The reward for the event of picking up the key.
                                                  - `door` (float): The reward for the event of opening the door.
-                                                 Default is GoalRewards(key=1, door=5).
+                                                 Default is GoalReward(key=1, door=5).
         '''
         self.source_env = env
         self.reset()
 
-        self.step_reward = step_reward
-        self.goal_rewards = goal_rewards
+        self.set_params(step_reward, goal_reward)
 
     def reset(self): # open gym default implementation changes the board. override, as we do not want to change the board upon reset every time
         self.env = copy.deepcopy(self.source_env)
         return self.get_current_state()
+
+    def set_params(self, step_reward, goal_reward):
+        self.step_reward = step_reward
+        self.goal_reward = goal_reward
 
     def get_current_state(self):
         '''
@@ -76,9 +79,9 @@ class EnvWrapper(gym.Env):
 
         r = self.step_reward
         if done: # the agent unlocked the door
-            r = self.goal_rewards.door
+            r = self.goal_reward.door
         elif not agent_had_key and agent_has_key: # the agent picked up the key
-            r = self.goal_rewards.key
+            r = self.goal_reward.key
 
         return s_tag, r, done
 
@@ -90,7 +93,7 @@ if __name__ == '__main__':
 
     source_env = KeyFlatObsWrapper(RandomKeyMEnv_10(render_mode='rgb_array'))
     source_env.reset()  # we must reset the env: this places the agent and other elements on top of the board
-    env = EnvWrapper(source_env)
+    env = KeyEnvWrapper(source_env)
 
     state = env.reset()
     print(f'start_state: {state}')
