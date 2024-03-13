@@ -14,18 +14,15 @@ Training-phase parameters:
 train_num_episodes - the number of episodes for the training
 train_steps_cutoff - maximal steps allowed per episode
 '''
-# train_num_episodes = 500
-# train_steps_cutoff = 100
-train_num_episodes = 5
-train_steps_cutoff = 10
+train_num_episodes = 500
+train_steps_cutoff = 100
 
 '''
 Evaluation-phase parameters
 test_num_episodes - the number of episodes for the evaluation
 test_steps_cutoff - maximal steps allowed per episode
 '''
-# test_steps_cutoff = 100
-test_steps_cutoff = 3
+test_steps_cutoff = 100
 
 # Tested env
 env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
