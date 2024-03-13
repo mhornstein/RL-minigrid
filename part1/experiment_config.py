@@ -44,7 +44,7 @@ algorithm_params = {'alpha': 0.9, 'gamma': 1, 'epsilon': 1.0, 'ep_decay': 0.99,
 remove dictionary keys to test less hyperparameters
 Change the values in the entries to test different hyper-parameters values
 '''
-tested_parameters = {'goal_reward': [1, 5, 10],
+tested_parameters = {'goal_reward': [-10, 0, 1, 5, 10],
                     'step_reward': np.arange(-0.006, 0.007, 0.002).round(3),
                     'alpha': np.arange(0.85, 1.01, 0.025).round(2),
                     'gamma': np.arange(0.88, 1.01, 0.02).round(2),
