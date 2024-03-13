@@ -1,5 +1,6 @@
 import numpy as np
 
+from common.empty_env_wrapper import EmptyEnvWrapper
 from common.random_empty_env_10 import RandomEmptyEnv_10
 from common.key_flat_obs_wrapper import KeyFlatObsWrapper
 
@@ -32,12 +33,8 @@ algorithm_params = {'alpha': 0.9, 'gamma': 1, 'epsilon': 1.0, 'ep_decay': 0.99,
 # Tested hyperparameter configuration - Empty env #
 ###################################################
 
-# Tested env
-env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
-env.reset() # we must reset the env: this places the agent and other elements on top of the board
-
 # Default hyper-parameters values for env (the tested hyperparameter will override its value in the relevant test)
-env_params = {'goal_reward': 10, 'step_reward': -0.01, 'env': env}
+env_params = {'goal_reward': 10, 'step_reward': -0.01}
 
 # remove dictionary keys to test less hyperparameters
 # Change the values in the entries to test different hyper-parameters values
@@ -46,3 +43,8 @@ tested_parameters = {'goal_reward': [-10, 0, 1, 5, 10],
                     'alpha': np.arange(0.85, 1.01, 0.025).round(2),
                     'gamma': np.arange(0.88, 1.01, 0.02).round(2),
                     'ep_decay': [0.85, 0.9, 0.95, 0.99, 1]}
+
+# Last - create the tested environment
+source_env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
+source_env.reset() # we must reset the env: this places the agent and other elements on top of the board
+env = EmptyEnvWrapper(source_env, env_params['step_reward'], env_params['goal_reward'])

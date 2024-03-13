@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 agent_directions_space = 4
 
-class EnvWrapper(gym.Env):
+class EmptyEnvWrapper(gym.Env):
     '''
     This wrapper enables environment customization
     '''
@@ -20,12 +20,15 @@ class EnvWrapper(gym.Env):
         self.source_env = env
         self.reset()
 
-        self.step_reward = step_reward
-        self.goal_reward = goal_reward
+        self.set_params(step_reward, goal_reward)
 
     def reset(self): # open gym default implementation changes the board. override, as we do not want to change the board upon reset every time
         self.env = copy.deepcopy(self.source_env)
         return self.get_current_state()
+
+    def set_params(self, step_reward, goal_reward):
+        self.step_reward = step_reward
+        self.goal_reward = goal_reward
 
     def get_current_state(self):
         agent_col, agent_row = self.env.get_position()
@@ -62,7 +65,7 @@ if __name__ == '__main__':
 
     source_env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
     source_env.reset()  # we must reset the env: this places the agent and other elements on top of the board
-    env = EnvWrapper(source_env)
+    env = EmptyEnvWrapper(source_env)
 
     state = env.reset()
     print(f'start_state: {state}')
