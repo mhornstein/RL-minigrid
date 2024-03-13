@@ -1,6 +1,11 @@
 import sys
 
 from algorithms.q_learning import q_learning
+from common.empty_env_wrapper import EmptyEnvWrapper
+from common.key_env_wrapper import KeyEnvWrapper
+from common.key_flat_obs_wrapper import KeyFlatObsWrapper
+from common.random_empty_env_10 import RandomEmptyEnv_10
+from common.random_key_env_10 import RandomKeyMEnv_10
 from common.reports_util import log_training_process, create_tabular_method_report
 
 sys.path.append('../')
@@ -8,6 +13,17 @@ sys.path.append('../')
 import os
 import time
 from experiment_config import *
+
+def create_env(env_type):
+    if env_type == EnvType.EMPTY:
+        source_env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
+        source_env.reset()
+        env = EmptyEnvWrapper(source_env)
+    else:
+        source_env = KeyFlatObsWrapper(RandomKeyMEnv_10(render_mode='rgb_array'))
+        source_env.reset()
+        env = KeyEnvWrapper(source_env)
+    return env
 
 def init_results_files(tested_parameter, result_path):
     if not os.path.exists(result_path):
@@ -103,6 +119,8 @@ def run_experiment(env, env_params, algorithm_params, tested_parameter, tested_v
 
 if __name__ == '__main__':
     start_time = time.time()
+
+    env = create_env(env_type)
 
     for tested_parameter, tested_values in tested_parameters.items():
         run_experiment(env, env_params, algorithm_params, tested_parameter, tested_values)

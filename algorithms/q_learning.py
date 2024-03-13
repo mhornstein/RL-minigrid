@@ -19,13 +19,16 @@ def q_learning(env, alpha, gamma, epsilon, ep_decay, num_episodes, steps_cutoff)
     '''
 
     # Create Q table of size |S| x |A| where:
-    # S = (agent col, agent row, agent direction)
+    # S = varying state size, with columns and rows being the first 2 dimentions:
+    # e.g. for empty-env: (agent col, agent row, agent direction) and for key-env (agent col, agent row, agent direction, is_carrying_key, is_door_unlocked)
     # A is in the set {turn right, turn left, move forward}
 
     # We initialize values in the table, Q(terminal state) = 0
-    cols, rows, agent_directions_space = env.get_state_dim()
+    state_dim = env.get_state_dim()
     action_dim = env.get_action_dim()
-    Q = np.zeros([cols, rows, agent_directions_space, action_dim], dtype=np.float64)
+    Q = np.zeros(state_dim + (action_dim,), dtype=np.float64)
+
+    cols, rows = state_dim[:2]
 
     # Initialize stats' data structures
     states_visits_count = np.zeros([cols, rows], dtype=float)

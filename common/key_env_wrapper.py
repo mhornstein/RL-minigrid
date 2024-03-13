@@ -1,29 +1,31 @@
 import gym
 import copy
+import random
 import matplotlib.pyplot as plt
 from collections import namedtuple
+from enum import Enum
 
 agent_directions_space = 4
 key_state_space = 2
 door_state_space = 2
-
-GoalReward = namedtuple('GoalReward', ['key', 'door'])
+class Direction(Enum):
+    RIGHT = 0
+    DOWN = 1
+    LEFT = 2
+    UP = 3
 
 class KeyEnvWrapper(gym.Env):
     '''
     This wrapper enables environment customization
     '''
-    def __init__(self, env, step_reward=-0.01, goal_reward=GoalReward(key=1, door=5)):
+    def __init__(self, env, step_reward=-0.01, goal_reward=10):
         '''
         Initializes the EnvWrapper.
 
         Args:
             env (gym.Env): The Gym environment to be wrapped. Important: this env must be initialized before wrapping (use env.reset())
             step_reward (float, optional): The per-step reward or penalty. Default is -0.01.
-            goal_reward (GoalReward, optional): A namedtuple `GoalReward(key, door)` specifying the rewards for the specific events within the environment.
-                                                 - `key` (float): The reward for the event of picking up the key.
-                                                 - `door` (float): The reward for the event of opening the door.
-                                                 Default is GoalReward(key=1, door=5).
+            goal_reward (float, optional): The reward for reaching the goal. Default is 10.
         '''
         self.source_env = env
         self.reset()
@@ -62,27 +64,42 @@ class KeyEnvWrapper(gym.Env):
         return self.env.action_space.n
 
     def sample_action(self):
-        return self.env.action_space.sample()
+        available_actions = [0, 1]
+
+        key_pos = self.env.get_k_pos()
+        door_pos = self.env.get_d_pos()
+
+        if self.can_use_element(key_pos): # the agent is fronting a key - if so, we can use pick up action (3)
+            available_actions.append(3)
+        elif (not self.env.is_door_open() and
+              self.env.is_carrying_key() and
+              self.can_use_element(door_pos)): # the agent is fronting a door it can open - if so, we can use toggle action (5)
+            available_actions.append(5)
+        elif not self.env.is_wall_front_pos(): # the agent is not standing in front of a wall - if so, we can proceed forward (2)
+            available_actions.append(2)
+
+        sampled_action = random.choice(available_actions)
+        return sampled_action
+
+    def can_use_element(self, element_pos):
+        agent_direction = self.env.get_direction()
+        agent_col, agent_row = self.env.get_position()
+
+        if Direction.UP.value == agent_direction:
+            required_pos = agent_col, agent_row - 1
+        elif Direction.DOWN.value == agent_direction:
+            required_pos = agent_col, agent_row + 1
+        elif Direction.LEFT.value == agent_direction:
+            required_pos = agent_col - 1, agent_row
+        else: # Direction.RIGHT.value == agent_direction
+            required_pos = agent_col + 1, agent_row
+        return required_pos == element_pos
 
     def step(self, action):
-        # First - log current state
-        agent_had_key = self.env.is_carrying_key()
-        door_was_opened = self.env.is_door_open()
-
-        # now - perform the action and check its outcome
         _ = self.env.step(action)
         s_tag = self.get_current_state()
-        agent_has_key = self.env.is_carrying_key()
-        door_is_opened = self.env.is_door_open()
-
-        done = not door_was_opened and door_is_opened # the door was just opened
-
-        r = self.step_reward
-        if done: # the agent unlocked the door
-            r = self.goal_reward.door
-        elif not agent_had_key and agent_has_key: # the agent picked up the key
-            r = self.goal_reward.key
-
+        done = self.env.get_goal_pos() == self.env.get_position() # compare agent location to target location
+        r = self.goal_reward if done else self.step_reward
         return s_tag, r, done
 
 # Testing

@@ -47,7 +47,7 @@ class EmptyEnvWrapper(gym.Env):
     def get_action_dim(self):
         return self.env.action_space.n
 
-    def sample_action(self):
+    def sample_action(self): # TODO avoid action 2 if the agend is in front of a wall
         return self.env.action_space.sample()
 
     def step(self, action):
