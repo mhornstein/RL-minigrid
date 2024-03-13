@@ -6,11 +6,7 @@
 /.idea/modules.xml
 /.idea/vcs.xml
 /common/__pycache__/*.pyc
-/part1/results_alpha/
-/part1/results_goal_reward/
-/part1/results_step_reward/
-/part1/results_ep_decay/
-/part1/results_gamma/
+/part1/result/
 /algorithms/__pycache__/*.pyc
 /part1/__pycache__/*.pyc
 /part1/result/

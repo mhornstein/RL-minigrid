@@ -34,6 +34,8 @@ class KeyEnvWrapper(gym.Env):
 
     def reset(self): # open gym default implementation changes the board. override, as we do not want to change the board upon reset every time
         self.env = copy.deepcopy(self.source_env)
+        self.was_key_picked_up = False
+        self.was_door_unlocked = False
         return self.get_current_state()
 
     def set_params(self, step_reward, goal_reward):
@@ -43,13 +45,11 @@ class KeyEnvWrapper(gym.Env):
     def get_current_state(self):
         '''
         The state holds the knowledge of the agent: the agent knows where it is and what its direction is,
-        as well as some history of its actions: whether it has picked up the key or unlocked the door
+        as well as some history of its actions: whether it has picked up the key or unlocked the door for the first time
         '''
         agent_col, agent_row = self.env.get_position()
         agent_direction = self.env.get_direction()
-        is_carrying_key = self.env.is_carrying_key()
-        is_door_opened = self.env.is_door_open()
-        state = (agent_col - 1, agent_row - 1, agent_direction, int(is_carrying_key), int(is_door_opened))
+        state = (agent_col - 1, agent_row - 1, agent_direction, int(self.was_key_picked_up), int(self.was_door_unlocked))
         return state
 
     def render(self):
@@ -96,10 +96,29 @@ class KeyEnvWrapper(gym.Env):
         return required_pos == element_pos
 
     def step(self, action):
+        # First - log current state
+        agent_had_key = self.env.is_carrying_key()
+        door_was_opened = self.env.is_door_open()
+
+        # now - perform the action and check its outcome
         _ = self.env.step(action)
+        agent_has_key = self.env.is_carrying_key()
+        door_is_opened = self.env.is_door_open()
+        done = self.env.get_goal_pos() == self.env.get_position()
+
+        if done:
+            r = self.goal_reward
+        elif not agent_had_key and agent_has_key and not self.was_key_picked_up:  # the agent picked up the key for the first time
+            self.was_key_picked_up = True
+            r = 1 # TODO remove to constant
+        elif not door_was_opened and door_is_opened and not self.was_door_unlocked: # the door is opened for the first time
+            self.was_door_unlocked = True
+            r = 1 # TODO remove to constant
+        else: # this is a regular step
+            r = self.step_reward
+
         s_tag = self.get_current_state()
-        done = self.env.get_goal_pos() == self.env.get_position() # compare agent location to target location
-        r = self.goal_reward if done else self.step_reward
+
         return s_tag, r, done
 
 # Testing
