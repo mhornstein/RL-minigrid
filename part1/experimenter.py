@@ -2,7 +2,7 @@ import sys
 
 from algorithms.q_learning import q_learning
 from common.empty_env_wrapper import EnvWrapper
-from common.reports_util import log_training_process
+from common.reports_util import log_training_process, create_tabular_method_report
 
 sys.path.append('../')
 
@@ -97,6 +97,8 @@ def run_experiment(env_params, algorithm_params,tested_parameter, tested_values)
         f = open(test_result_file, 'a')
         f.write(f'{parameter_value},{done},{steps_count}\n')
         f.close()
+
+        create_tabular_method_report(result_path, tested_parameter, train_result_file, test_result_file)
 
 if __name__ == '__main__':
     start_time = time.time()
