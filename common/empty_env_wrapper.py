@@ -1,5 +1,6 @@
 import gym
 import copy
+import random
 import matplotlib.pyplot as plt
 
 agent_directions_space = 4
@@ -47,8 +48,12 @@ class EmptyEnvWrapper(gym.Env):
     def get_action_dim(self):
         return self.env.action_space.n
 
-    def sample_action(self): # TODO avoid action 2 if the agend is in front of a wall
-        return self.env.action_space.sample()
+    def sample_action(self):
+        available_actions = [0, 1]
+        if not self.env.is_wall_front_pos():  # the agent is not standing in front of a wall - if so, we can proceed forward (2)
+            available_actions.append(2)
+        sampled_action = random.choice(available_actions)
+        return sampled_action
 
     def step(self, action):
         _ = self.env.step(action)
