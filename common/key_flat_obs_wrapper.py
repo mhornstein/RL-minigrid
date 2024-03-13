@@ -108,7 +108,7 @@ class KeyFlatObsWrapper(gym.core.ObservationWrapper):
 
 
 if __name__ == '__main__':
-    from common.random_key_m_env_10 import RandomEmptyEnv_10
+    from common.random_empty_env_10 import RandomEmptyEnv_10
     import matplotlib.pyplot as plt
     env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
     obs = env.reset()

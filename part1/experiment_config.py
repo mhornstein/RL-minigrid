@@ -1,6 +1,6 @@
 import numpy as np
 
-from common.random_key_m_env_10 import RandomEmptyEnv_10
+from common.random_empty_env_10 import RandomEmptyEnv_10
 from common.key_flat_obs_wrapper import KeyFlatObsWrapper
 
 import random
