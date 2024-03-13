@@ -69,11 +69,8 @@ def plot_bar_chart(df, column_name, tested_parameter, ax):
     ax.set(ylabel='')
 
 def create_tabular_method_report(plot_path, tested_parameter, train_result_file, test_result_file):
-    fig = plt.figure(figsize=(12, 10))
-    gs = GridSpec(5, 6, height_ratios=[0.05,
-                                       1,
-                                       0.05, 1,
-                                       0.1], hspace=0.4, wspace=0.4)
+    fig = plt.figure(figsize=(12, 8))
+    gs = GridSpec(4, 6, height_ratios=[0.05, 0.5, 0.05, 0.6], hspace=0.4, wspace=0.4)
 
     # add headers
     parameter_header_subplot = fig.add_subplot(gs[0, :])
@@ -91,15 +88,11 @@ def create_tabular_method_report(plot_path, tested_parameter, train_result_file,
     df = pd.read_csv(train_result_file)
     total_episodes_count = df['total_episodes_count'].iloc[0]
 
-    ax = fig.add_subplot(gs[3, 0:2])
+    ax = fig.add_subplot(gs[3, 0:3])
     plot_bar_chart(df, 'done_episodes_count', tested_parameter, ax)
     ax.set_title(f'Total episodes done out of {total_episodes_count}')
 
-    ax = fig.add_subplot(gs[3, 2:4])
-    plot_bar_chart(df, 'rewards_avg', tested_parameter, ax)
-    ax.set_title(f'Avg reward per {total_episodes_count} episodes')
-
-    ax = fig.add_subplot(gs[3, 4:])
+    ax = fig.add_subplot(gs[3, 3:])
     plot_bar_chart(df, 'total_steps_avg', tested_parameter, ax)
     ax.set_title(f'Avg episode steps per {total_episodes_count} episodes')
 
