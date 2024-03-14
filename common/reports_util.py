@@ -26,16 +26,30 @@ def save_lineplot(data, path, title, xlabel, ylabel):
     plt.clf()
     plt.close()
 
-def log_training_process(experiment_log_dir, states_visits_mean, episodes_steps, episodes_rewards):
-    if not os.path.exists(experiment_log_dir):
-        os.makedirs(experiment_log_dir)
-
+def log_training_process(experiment_log_dir, states_visits_mean, episodes_steps, episodes_rewards, episodes_loss):
     save_heatmap(data=states_visits_mean.T, path=f'{experiment_log_dir}/states_visits_mean.png', fmt='.1f', annot_kws={"size": 6})
 
     save_lineplot(data=episodes_steps, path=f'{experiment_log_dir}/Convergence_Graph__Episodes_steps.png',
                   title='Convergence Graph: Episodes steps', xlabel='Episode number', ylabel='Steps')
     save_lineplot(data=episodes_rewards, path=f'{experiment_log_dir}/Convergence_Graph__Episodes_reward.png',
                   title='Convergence Graph: Episodes reward', xlabel='Episode number', ylabel='Reward')
+
+    if episodes_loss: # episodes_loss is not always available - log it only if it is
+        save_lineplot(data=episodes_loss, path=f'{experiment_log_dir}/Convergence_Graph__Episodes_loss.png',
+                      title='Convergence Graph: Episodes Loss', xlabel='Episode number', ylabel='Loss')
+
+    # Then - save the raw data
+    raw_data = {
+        'episode': list(range(1, len(episodes_steps) + 1)),
+        'steps': episodes_steps,
+        'rewards': episodes_rewards
+    }
+    if episodes_loss:
+        raw_data['loss'] = episodes_loss
+
+    df = pd.DataFrame(raw_data)
+    df.to_csv(f'{experiment_log_dir}/Convergence_logs.csv', index=False)
+
 
 #########################
 ## full report generation

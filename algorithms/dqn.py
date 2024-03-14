@@ -3,11 +3,13 @@ import random
 import torch.nn as nn
 from torch.optim import SGD
 from collections import namedtuple, deque
+import copy
+import numpy as np
 
 Transition = namedtuple('transition', ('state', 'action', 'reward', 'next_state'))
 
 class QNN(nn.Module):
-    def __init__(self):
+    def __init__(self, action_dim):
         super(QNN, self).__init__()
         self.model = torch.nn.Sequential(
             torch.nn.Conv2d(3, 32, 5),
@@ -20,9 +22,9 @@ class QNN(nn.Module):
             torch.nn.MaxPool2d((2,2)),
             torch.nn.ReLU(),
             torch.nn.Flatten(),
-            torch.nn.Linear(12800, 512),
+            torch.nn.Linear(165888, 512),
             torch.nn.ReLU(),
-            torch.nn.Linear(512, 13)
+            torch.nn.Linear(512, action_dim)
         )
 
     def forward(self, x):
@@ -49,8 +51,7 @@ def state_to_tensor(state, done=False):
         return torch.tensor(state, dtype=torch.float32).permute(2, 0, 1).unsqueeze(0)
 
 def create_policy(policy_net):
-    policy_net_snapshot = QNN()
-    policy_net_snapshot.load_state_dict(policy_net.state_dict())
+    policy_net_snapshot = copy.deepcopy(policy_net)
     def policy(s):
         '''
         This function gets a state and returns the preferable action.
@@ -110,13 +111,17 @@ def train_policy_network(buffer, policy_net, target_net, batch_size, gamma, opti
 
 def dqn(env, num_episodes, batch_size, gamma, ep_decay, epsilon,
         target_freq_update, memory_buffer_size, learning_rate, steps_cutoff, train_action_value_freq_update):
-    policy_net = QNN()
-    target_net = QNN()
+    action_dim = env.get_action_dim()
+    policy_net = QNN(action_dim)
+    target_net = QNN(action_dim)
     update_target_net(policy_net, target_net)
     criterion = torch.nn.MSELoss()
 
     buffer = ExperienceReplayBuffer(memory_buffer_size)
     optimizer = SGD(policy_net.parameters(), lr=learning_rate)
+
+    cols, rows = env.get_board_dims()
+    states_visits_count = np.zeros([cols, rows], dtype=float) # Initialize stats' data structures
 
     done_count = 0
     episodes_loss, episodes_rewards, episodes_steps = [], [], []
@@ -130,11 +135,13 @@ def dqn(env, num_episodes, batch_size, gamma, ep_decay, epsilon,
         num_steps = 1
 
         state = state_to_tensor(env.reset())
+        agent_position = env.get_agent_position()
+        states_visits_count[agent_position] += 1
 
         while not done and num_steps <= steps_cutoff:
             print(num_steps, end = " ")
             action = pick_action(epsilon, state, env, policy_net)
-            next_state, reward, done, info = env.step(action.item())
+            next_state, reward, done = env.step(action.item())
             episode_reward += reward
 
             next_state = state_to_tensor(next_state, done)
@@ -147,7 +154,14 @@ def dqn(env, num_episodes, batch_size, gamma, ep_decay, epsilon,
 
             num_steps += 1
             epsilon = update_epsilon(epsilon, ep_decay)
+
+            next_agent_position = env.get_agent_position()
+
+            if agent_position != next_agent_position: # if the agent moved to a new location on the board
+                states_visits_count[next_agent_position] += 1
+
             state = next_state
+            agent_position = next_agent_position
 
         num_steps = steps_cutoff if not done else num_steps
 
@@ -166,4 +180,4 @@ def dqn(env, num_episodes, batch_size, gamma, ep_decay, epsilon,
 
     policy = create_policy(policy_net)
 
-    return mid_train_policy, policy, policy_net, done_count, episodes_steps, episodes_rewards, episodes_loss
+    return mid_train_policy, policy, states_visits_count / num_episodes, done_count, episodes_steps, episodes_rewards, episodes_loss

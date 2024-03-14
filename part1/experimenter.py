@@ -1,5 +1,6 @@
 import sys
 
+from algorithms.dqn import dqn
 from algorithms.q_learning import q_learning
 from common.env_wrapper import EmptyEnvWrapper, StateRepresentation
 from common.env_wrapper import KeyEnvWrapper
@@ -13,6 +14,8 @@ sys.path.append('../')
 import os
 import time
 from experiment_config import *
+
+NA = 'N/A'
 
 def create_env(env_type, state_representation):
     if env_type == EnvType.EMPTY:
@@ -37,7 +40,7 @@ def init_results_files(tested_parameter, result_path):
 
     train_result_file = f'{result_path}/train_result_{tested_parameter}.csv'
     f = open(train_result_file, 'w')
-    f.write(f'{tested_parameter},done_episodes_count,total_episodes_count,total_steps_avg,rewards_avg\n')
+    f.write(f'{tested_parameter},done_episodes_count,total_episodes_count,total_steps_avg,rewards_avg,loss_avg\n')
     f.close()
 
     return train_result_file, test_result_file
@@ -90,19 +93,21 @@ def run_experiment(env, env_params, algorithm, algorithm_params, tested_paramete
         print("Start training")
 
         algorithm_params_cpy['env'] = env
-        mid_train_policy, policy, states_visits_mean, done_count, episodes_steps, episodes_rewards = algorithm(**algorithm_params_cpy)
+        mid_train_policy, policy, states_visits_mean, done_count, episodes_steps, episodes_rewards, *episodes_loss = algorithm(**algorithm_params_cpy)
+        episodes_loss = episodes_loss[0] if episodes_loss else [] # tabular algorithms do not provide loss information - this is relevant only for deep
 
         # First - log training process
         parameter_train_log_path = f'{train_log_path}/{tested_parameter}_{parameter_value}'  # Create training log path
         if not os.path.exists(parameter_train_log_path):
             os.makedirs(parameter_train_log_path)
-        log_training_process(parameter_train_log_path, states_visits_mean, episodes_steps, episodes_rewards)
+        log_training_process(parameter_train_log_path, states_visits_mean, episodes_steps, episodes_rewards, episodes_loss)
 
-        # Then - log training results
+        # Then - aggregate training results and log
         f = open(train_result_file, 'a')
         total_steps_avg = np.mean(episodes_steps)
         rewards_avg = np.mean(episodes_rewards)
-        f.write(f'{parameter_value},{done_count},{algorithm_params_cpy["num_episodes"]},{total_steps_avg},{rewards_avg}\n')
+        loss_avg = np.mean(episodes_loss) if episodes_loss else NA
+        f.write(f'{parameter_value},{done_count},{algorithm_params_cpy["num_episodes"]},{total_steps_avg},{rewards_avg},{loss_avg}\n')
         f.close()
 
         ################
@@ -115,7 +120,8 @@ def run_experiment(env, env_params, algorithm, algorithm_params, tested_paramete
         f.write(f'{parameter_value},{done},{steps_count}\n')
         f.close()
 
-        report_method(result_path, tested_parameter, train_result_file, test_result_file)
+        if report_method is not None:
+            report_method(result_path, tested_parameter, train_result_file, test_result_file)
 
 if __name__ == '__main__':
     start_time = time.time()
@@ -123,7 +129,7 @@ if __name__ == '__main__':
     state_representation = StateRepresentation.ENCODED if Algorithm.QL == algo_type else StateRepresentation.IMAGE
     env = create_env(env_type, state_representation)
 
-    algorithm = q_learning if algo_type == Algorithm.QL else None
+    algorithm = q_learning if algo_type == Algorithm.QL else dqn
     algorithm_params = algorithms_params[algo_type]
 
     tested_parameters_dict = {**tested_parameters[ENV_PARAMS], **tested_parameters[algo_type]}

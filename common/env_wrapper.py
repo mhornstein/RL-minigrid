@@ -83,7 +83,8 @@ class EnvWrapper(gym.Env, ABC):
         return sampled_action
 
     def get_agent_position(self):
-        return self.env.get_position()
+        col, row = self.env.get_position()
+        return col - 1, row - 1
 
     @abstractmethod
     def get_available_actions(self):
