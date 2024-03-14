@@ -7,7 +7,7 @@ from common.env_wrapper import KeyEnvWrapper
 from common.key_flat_obs_wrapper import KeyFlatObsWrapper
 from common.random_empty_env_10 import RandomEmptyEnv_10
 from common.random_key_env_10 import RandomKeyMEnv_10
-from common.reports_util import log_training_process, create_tabular_method_report
+from common.reports_util import log_training_process, create_report
 
 sys.path.append('../')
 
@@ -64,7 +64,7 @@ def evaluate_policy(env, policy, steps_cutoff):
 
     return steps_count, done
 
-def run_experiment(env, env_params, algorithm, algorithm_params, tested_parameter, tested_values, report_method):
+def run_experiment(env, env_params, algorithm, algorithm_params, tested_parameter, tested_values):
     env_params_cpy = env_params.copy()
     algorithm_params_cpy = algorithm_params.copy()
     result_path = f'./results_{tested_parameter}'
@@ -120,12 +120,10 @@ def run_experiment(env, env_params, algorithm, algorithm_params, tested_paramete
         f.write(f'{parameter_value},{done},{steps_count}\n')
         f.close()
 
-        if report_method is not None:
-            report_method(result_path, tested_parameter, train_result_file, test_result_file)
+        create_report(result_path, tested_parameter, train_result_file, test_result_file, train_log_path)
 
 if __name__ == '__main__':
     start_time = time.time()
-
     state_representation = StateRepresentation.ENCODED if Algorithm.QL == algo_type else StateRepresentation.IMAGE
     env = create_env(env_type, state_representation)
 
@@ -134,10 +132,8 @@ if __name__ == '__main__':
 
     tested_parameters_dict = {**tested_parameters[ENV_PARAMS], **tested_parameters[algo_type]}
 
-    report_method = create_tabular_method_report if algo_type == Algorithm.QL else None
-
     for tested_parameter, tested_values in tested_parameters_dict.items():
-        run_experiment(env, env_params, algorithm, algorithm_params, tested_parameter, tested_values, report_method)
+        run_experiment(env, env_params, algorithm, algorithm_params, tested_parameter, tested_values)
 
     end_time = time.time()
     execution_time = end_time - start_time

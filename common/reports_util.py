@@ -27,6 +27,8 @@ def save_lineplot(data, path, title, xlabel, ylabel):
     plt.close()
 
 def log_training_process(experiment_log_dir, states_visits_mean, episodes_steps, episodes_rewards, episodes_loss):
+    # First - save the lineplot
+    plt.clf()
     save_heatmap(data=states_visits_mean.T, path=f'{experiment_log_dir}/states_visits_mean.png', fmt='.1f', annot_kws={"size": 6})
 
     save_lineplot(data=episodes_steps, path=f'{experiment_log_dir}/Convergence_Graph__Episodes_steps.png',
@@ -82,9 +84,28 @@ def plot_bar_chart(df, column_name, tested_parameter, ax):
     ax.set(xlabel=ax.get_xlabel().replace('_', ' '))
     ax.set(ylabel='')
 
-def create_tabular_method_report(plot_path, tested_parameter, train_result_file, test_result_file):
-    fig = plt.figure(figsize=(12, 8))
-    gs = GridSpec(4, 6, height_ratios=[0.05, 0.5, 0.05, 0.6], hspace=0.4, wspace=0.4)
+def plot_line_graph(df, title, ax):
+    ax.set_title(title)
+    sns.lineplot(data=df, palette=palette, ax=ax, dashes=False)
+
+def load_train_metric_df(train_log_path, metric):
+    res_df = pd.DataFrame()
+    for dir_name in os.listdir(train_log_path):
+        value_header = dir_name.split('_')[-1]
+        dir_path = os.path.join(train_log_path, dir_name)
+        log_file_path = os.path.join(dir_path, "Convergence_logs.csv")
+        df = pd.read_csv(log_file_path).set_index('episode')
+        if metric in df:
+            res_df[value_header] = df[metric]
+    return res_df
+
+def create_report(plot_path, tested_parameter, train_result_file, test_result_file, train_log_path):
+    fig = plt.figure(figsize=(12, 10))
+    gs = GridSpec(7, 6, height_ratios=[0.05,
+                                       1,
+                                       0.05, 1,
+                                       0.1,
+                                       0.05, 1], hspace=0.4, wspace=0.4)
 
     # add headers
     parameter_header_subplot = fig.add_subplot(gs[0, :])
@@ -92,6 +113,9 @@ def create_tabular_method_report(plot_path, tested_parameter, train_result_file,
 
     train_mean_header_subplot = fig.add_subplot(gs[2, :])
     create_header(train_mean_header_subplot, 'Train metrics')
+
+    train_graph_header_subplot = fig.add_subplot(gs[5, :])
+    create_header(train_graph_header_subplot, 'Train graphs')
 
     # add evaluation results
     df = pd.read_csv(test_result_file)
@@ -110,15 +134,29 @@ def create_tabular_method_report(plot_path, tested_parameter, train_result_file,
     plot_bar_chart(df, 'total_steps_avg', tested_parameter, ax)
     ax.set_title(f'Avg episode steps per {total_episodes_count} episodes')
 
+    # Add steps, reward and loss graphs
+    loss_df = load_train_metric_df(train_log_path, 'loss')
+    steps_df = load_train_metric_df(train_log_path, 'steps')
+    rewards_df = load_train_metric_df(train_log_path, 'rewards')
+
+    if len(loss_df) > 0: # we have loss information
+        plot_line_graph(loss_df, 'loss', ax=fig.add_subplot(gs[6, 0:2]))
+        plot_line_graph(steps_df, 'steps', ax=fig.add_subplot(gs[6, 2:4]))
+        plot_line_graph(rewards_df, 'rewards', ax=fig.add_subplot(gs[6, 4:]))
+    else:
+        plot_line_graph(steps_df, 'steps', ax=fig.add_subplot(gs[6, 0:3]))
+        plot_line_graph(rewards_df, 'rewards', ax=fig.add_subplot(gs[6, 3:]))
+
     plt.savefig(f'{plot_path}/results_plot.png')
     plt.close()
     plt.clf()
 
 if __name__ == '__main__':
-    tested_param = 'ep_decay'
+    tested_param = 'goal_reward'
 
     result_path = f'results_{tested_param}'
     train_results_path = f'../part1/{result_path}/train_result_{tested_param}.csv'
     test_results_path = f'../part1/{result_path}/test_result_{tested_param}.csv'
+    train_log_path = f'../part1/{result_path}/train_log'
 
-    create_tabular_method_report(f'../part1/results_{tested_param}', tested_param, train_results_path, test_results_path)
+    create_report(f'../part1/results_{tested_param}', tested_param, train_results_path, test_results_path, train_log_path)
