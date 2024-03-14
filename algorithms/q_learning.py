@@ -34,7 +34,7 @@ def q_learning(env, alpha, gamma, epsilon, ep_decay, num_episodes, steps_cutoff)
     Q = np.zeros(state_dim + (action_dim,), dtype=np.float64)
 
     cols, rows = env.get_board_dims()
-    states_visits_count = np.zeros([cols, rows], dtype=float)
+    states_visits_count = np.zeros([cols, rows], dtype=float) # Initialize stats' data structures
 
     done_count = 0
     episodes_steps = []
