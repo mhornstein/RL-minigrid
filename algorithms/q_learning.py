@@ -1,5 +1,10 @@
 import numpy as np
 
+def create_policy(Q):
+    q_snapshot = Q.copy()
+    def policy(state): return np.argmax(q_snapshot[state][:])  # return a greedy policy
+    return policy
+
 def q_learning(env, alpha, gamma, epsilon, ep_decay, num_episodes, steps_cutoff):
     '''
     Q-learning algorithm.
@@ -78,6 +83,9 @@ def q_learning(env, alpha, gamma, epsilon, ep_decay, num_episodes, steps_cutoff)
         episodes_steps.append(steps_count)
         episodes_rewards.append(reward_sum)
 
-    def policy(state): return np.argmax(Q[state][:]) # return a greedy policy
+        if num_episodes // 2 == ep:
+            mid_train_policy = create_policy(Q)
 
-    return policy, states_visits_count / num_episodes, done_count, episodes_steps, episodes_rewards
+    policy = create_policy(Q)
+
+    return mid_train_policy, policy, states_visits_count / num_episodes, done_count, episodes_steps, episodes_rewards

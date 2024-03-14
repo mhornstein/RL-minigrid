@@ -90,7 +90,7 @@ def run_experiment(env, env_params, algorithm, algorithm_params, tested_paramete
         print("Start training")
 
         algorithm_params_cpy['env'] = env
-        policy, states_visits_mean, done_count, episodes_steps, episodes_rewards = algorithm(**algorithm_params_cpy)
+        policy, mid_train_policy, states_visits_mean, done_count, episodes_steps, episodes_rewards = algorithm(**algorithm_params_cpy)
 
         # First - log training process
         parameter_train_log_path = f'{train_log_path}/{tested_parameter}_{parameter_value}'  # Create training log path
