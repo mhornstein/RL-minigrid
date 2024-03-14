@@ -61,7 +61,7 @@ def evaluate_policy(env, policy, steps_cutoff):
 
     return steps_count, done
 
-def run_experiment(env, env_params, algorithm_params, tested_parameter, tested_values):
+def run_experiment(env, env_params, algorithm, algorithm_params, tested_parameter, tested_values, report_method):
     env_params_cpy = env_params.copy()
     algorithm_params_cpy = algorithm_params.copy()
     result_path = f'./results_{tested_parameter}'
@@ -90,7 +90,7 @@ def run_experiment(env, env_params, algorithm_params, tested_parameter, tested_v
         print("Start training")
 
         algorithm_params_cpy['env'] = env
-        policy, states_visits_mean, done_count, episodes_steps, episodes_rewards = q_learning(**algorithm_params_cpy)
+        policy, states_visits_mean, done_count, episodes_steps, episodes_rewards = algorithm(**algorithm_params_cpy)
 
         # First - log training process
         parameter_train_log_path = f'{train_log_path}/{tested_parameter}_{parameter_value}'  # Create training log path
@@ -115,15 +115,19 @@ def run_experiment(env, env_params, algorithm_params, tested_parameter, tested_v
         f.write(f'{parameter_value},{done},{steps_count}\n')
         f.close()
 
-        create_tabular_method_report(result_path, tested_parameter, train_result_file, test_result_file)
+        report_method(result_path, tested_parameter, train_result_file, test_result_file)
 
 if __name__ == '__main__':
     start_time = time.time()
 
     env = create_env(env_type)
+    tested_parameters_dict = {**tested_parameters[ENV_PARAMS], **tested_parameters[algo_type]}
+    algorithm = q_learning if algo_type == Algorithm.QL else None
+    algorithm_params = algorithms_params[algo_type]
+    report_method = create_tabular_method_report if algo_type == Algorithm.QL else None
 
-    for tested_parameter, tested_values in tested_parameters.items():
-        run_experiment(env, env_params, algorithm_params, tested_parameter, tested_values)
+    for tested_parameter, tested_values in tested_parameters_dict.items():
+        run_experiment(env, env_params, algorithm, algorithm_params, tested_parameter, tested_values, report_method)
 
     end_time = time.time()
     execution_time = end_time - start_time

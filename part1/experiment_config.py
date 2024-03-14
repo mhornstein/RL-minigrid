@@ -9,6 +9,12 @@ class EnvType(Enum):
     EMPTY = 0
     KEY = 1
 
+class Algorithm(Enum):
+    QL = 'QL'
+    DQL = 'DQL'
+
+ENV_PARAMS = 'Env_params'
+
 #############################
 # Experiments configuration #
 #############################
@@ -27,11 +33,37 @@ test_steps_cutoff - maximal steps allowed per episode
 '''
 test_steps_cutoff = 100
 
-# Default hyper-parameters values for algorithm (the tested hyperparameter will override its value in the relevant test)
-algorithm_params = {'alpha': 0.9, 'gamma': 1, 'epsilon': 1.0, 'ep_decay': 0.99,
-                    'num_episodes': train_num_episodes, 'steps_cutoff': train_steps_cutoff}
+'''
+Default hyper-parameters values for the algorithms.
+The tested hyperparameter will override its value in the relevant test
+'''
+algorithms_params = {
+    Algorithm.QL: {
+        'alpha': 0.9,
+        'gamma': 1,
+        'epsilon': 1.0,
+        'ep_decay': 0.99,
+        'num_episodes': train_num_episodes,
+        'steps_cutoff': train_steps_cutoff
+    },
+    Algorithm.DQL: {
+        'learning_rate': 0.0001,
+        'gamma': 0.999,
+        'epsilon': 1,
+        'ep_decay': 0.999,
+        'num_episodes': train_num_episodes,
+        'steps_cutoff': train_steps_cutoff,
+        'batch_size': 32,
+        'target_freq_update': 10,
+        'memory_buffer_size': 10000,
+        'train_action_value_freq_update': 1
+    }
+}
 
-# Default hyper-parameters values for env (the tested hyperparameter will override its value in the relevant test)
+'''
+Default hyper-parameters values for env
+The tested hyperparameter will override its value in the relevant test
+'''
 env_params = {'goal_reward': 10, 'step_reward': -0.01}
 
 #######################################
@@ -39,10 +71,30 @@ env_params = {'goal_reward': 10, 'step_reward': -0.01}
 #######################################
 # remove dictionary keys to test less hyperparameters
 # Change the values in the entries to test different hyper-parameters values
-tested_parameters = {'goal_reward': [-10, 0, 1, 5, 10],
-                    'step_reward': np.arange(-0.006, 0.007, 0.002).round(3),
-                    'alpha': np.arange(0.85, 1.01, 0.025).round(2),
-                    'gamma': np.arange(0.88, 1.01, 0.02).round(2),
-                    'ep_decay': [0.85, 0.9, 0.95, 0.99, 1]}
+tested_parameters = {
+    Algorithm.QL: {
+        'alpha': np.arange(0.85, 1.01, 0.025).round(2),
+        'gamma': np.arange(0.88, 1.01, 0.02).round(2),
+        'ep_decay': [0.85, 0.9, 0.95, 0.99, 1]
+    },
+    Algorithm.DQL: {
+        'learning_rate': [0.00005, 0.0001, 0.0005, 0.001],
+        'batch_size': [16, 32, 64, 128, 256],
+        'target_freq_update': [4, 10, 16],
+        'memory_buffer_size': [100, 500, 1000, 10000],
+        'gamma': [0.9, 0.95, 0.999],
+        'ep_decay': [0.9, 0.95, 0.999],
+        'epsilon': [0.7, 0.9, 1.0],
+        'train_action_value_freq_update': [1, 4, 8, 16]
+    },
+    ENV_PARAMS: {
+        'goal_reward': [-10, 0, 1, 5, 10],
+        'step_reward': np.arange(-0.006, 0.007, 0.002).round(3),
+    }
+}
 
+# Pick the env you want to test: EnvType.EMPTY or EnvType.KEY
 env_type = EnvType.EMPTY
+
+# Pick the algorithm you want to test: Algorithm.QL or Algorithm.DQL
+algo_type = Algorithm.QL
