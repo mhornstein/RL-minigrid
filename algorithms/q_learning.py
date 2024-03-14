@@ -20,7 +20,7 @@ def q_learning(env, alpha, gamma, epsilon, ep_decay, num_episodes, steps_cutoff)
     :param num_episodes: number of episodes for training
     :param steps_cutoff: maximal steps for episode
 
-    :return: learnt policy + stats monitoring the training process: states_visits_mean, done_counter, episodes_steps (count), episodes_rewards (sum)
+    :return: learnt policy (at mid and end of training) + stats monitoring the training process: states_visits_mean, done_counter, episodes_steps (count), episodes_rewards (sum)
     '''
 
     # Create Q table of size |S| x |A| where:

@@ -164,8 +164,6 @@ def dqn(env, num_episodes, batch_size, gamma, ep_decay, epsilon,
         if num_episodes // 2 == i:
             mid_train_policy = create_policy(policy_net)
 
-        print()
-
     policy = create_policy(policy_net)
 
     return mid_train_policy, policy, policy_net, done_count, episodes_steps, episodes_rewards, episodes_loss
