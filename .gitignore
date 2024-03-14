@@ -6,7 +6,6 @@
 /.idea/modules.xml
 /.idea/vcs.xml
 /common/__pycache__/*.pyc
-/part1/result/
 /algorithms/__pycache__/*.pyc
-/part1/__pycache__/*.pyc
-/part1/result/
+/__pycache__/*.pyc
+/result/
