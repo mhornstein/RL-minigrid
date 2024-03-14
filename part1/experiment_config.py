@@ -73,8 +73,8 @@ env_params = {'goal_reward': 10, 'step_reward': -0.01}
 # Change the values in the entries to test different hyper-parameters values
 tested_parameters = {
     Algorithm.QL: {
-        'alpha': np.arange(0.85, 1.01, 0.025).round(2),
-        'gamma': np.arange(0.88, 1.01, 0.02).round(2),
+        'alpha': [0.8, 0.85, 0.9, 0.95, 1.0],
+        'gamma': [0.8, 0.85, 0.9, 0.95, 1.0],
         'ep_decay': [0.85, 0.9, 0.95, 0.99, 1]
     },
     Algorithm.DQL: {
@@ -89,7 +89,7 @@ tested_parameters = {
     },
     ENV_PARAMS: {
         'goal_reward': [-10, 0, 1, 5, 10],
-        'step_reward': np.arange(-0.006, 0.007, 0.002).round(3),
+        'step_reward': np.arange(-0.006, 0.005, 0.002).round(3),
     }
 }
 
