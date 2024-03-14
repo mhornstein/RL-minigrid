@@ -11,7 +11,7 @@ class EnvType(Enum):
 
 class Algorithm(Enum):
     QL = 'QL'
-    DQL = 'DQL'
+    DQN = 'DQN'
 
 ENV_PARAMS = 'Env_params'
 
@@ -46,7 +46,7 @@ algorithms_params = {
         'num_episodes': train_num_episodes,
         'steps_cutoff': train_steps_cutoff
     },
-    Algorithm.DQL: {
+    Algorithm.DQN: {
         'learning_rate': 0.0001,
         'gamma': 0.999,
         'epsilon': 1,
@@ -77,7 +77,7 @@ tested_parameters = {
         'gamma': [0.8, 0.85, 0.9, 0.95, 1.0],
         'ep_decay': [0.85, 0.9, 0.95, 0.99, 1]
     },
-    Algorithm.DQL: {
+    Algorithm.DQN: {
         'learning_rate': [0.00005, 0.0001, 0.0005, 0.001],
         'batch_size': [16, 32, 64, 128, 256],
         'target_freq_update': [4, 10, 16],
