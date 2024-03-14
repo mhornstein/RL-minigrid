@@ -1,7 +1,7 @@
 import sys
 
 from algorithms.q_learning import q_learning
-from common.env_wrapper import EmptyEnvWrapper
+from common.env_wrapper import EmptyEnvWrapper, StateRepresentation
 from common.env_wrapper import KeyEnvWrapper
 from common.key_flat_obs_wrapper import KeyFlatObsWrapper
 from common.random_empty_env_10 import RandomEmptyEnv_10
@@ -14,15 +14,15 @@ import os
 import time
 from experiment_config import *
 
-def create_env(env_type):
+def create_env(env_type, state_representation):
     if env_type == EnvType.EMPTY:
         source_env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
         source_env.reset()
-        env = EmptyEnvWrapper(source_env)
+        env = EmptyEnvWrapper(source_env, state_representation=state_representation)
     else:
         source_env = KeyFlatObsWrapper(RandomKeyMEnv_10(render_mode='rgb_array'))
         source_env.reset()
-        env = KeyEnvWrapper(source_env)
+        env = KeyEnvWrapper(source_env, state_representation=state_representation)
     return env
 
 def init_results_files(tested_parameter, result_path):
@@ -120,10 +120,13 @@ def run_experiment(env, env_params, algorithm, algorithm_params, tested_paramete
 if __name__ == '__main__':
     start_time = time.time()
 
-    env = create_env(env_type)
+    state_representation = StateRepresentation.ENCODED if Algorithm.QL == algo_type else StateRepresentation.IMAGE
+    env = create_env(env_type, state_representation)
+
     tested_parameters_dict = {**tested_parameters[ENV_PARAMS], **tested_parameters[algo_type]}
     algorithm = q_learning if algo_type == Algorithm.QL else None
     algorithm_params = algorithms_params[algo_type]
+
     report_method = create_tabular_method_report if algo_type == Algorithm.QL else None
 
     for tested_parameter, tested_values in tested_parameters_dict.items():

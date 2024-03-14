@@ -18,7 +18,7 @@ class Direction(Enum):
     LEFT = 2
     UP = 3
 
-class StateRepr(Enum):
+class StateRepresentation(Enum):
     IMAGE = 'image'
     ENCODED = 'encoded'
 
@@ -26,7 +26,7 @@ class EnvWrapper(gym.Env, ABC):
     '''
     This wrapper enables environment customization
     '''
-    def __init__(self, env, step_reward=-0.01, goal_reward=10, state_representation=StateRepr.ENCODED):
+    def __init__(self, env, step_reward=-0.01, goal_reward=10, state_representation=StateRepresentation.ENCODED):
         '''
         Initializes the EnvWrapper.
 
@@ -53,7 +53,7 @@ class EnvWrapper(gym.Env, ABC):
         self.goal_reward = goal_reward
 
     def get_current_state(self):
-        if StateRepr.IMAGE == self.state_representation:
+        if StateRepresentation.IMAGE == self.state_representation:
             current_state = self.env.render()
         else:
             current_state = self.get_encoded_current_state()
@@ -63,7 +63,7 @@ class EnvWrapper(gym.Env, ABC):
         plt.imshow(self.env.render())
 
     def get_state_dim(self):
-        if StateRepr.IMAGE == self.state_representation:
+        if StateRepresentation.IMAGE == self.state_representation:
             state_dim = self.env.render().shape
         else: # this is encoded mode
             state_dim = self.get_encoded_state_dim()
