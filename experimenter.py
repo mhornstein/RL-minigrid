@@ -1,5 +1,3 @@
-import sys
-
 from algorithms.dqn import dqn
 from algorithms.q_learning import q_learning
 from common.env_wrapper import EmptyEnvWrapper, StateRepresentation
@@ -8,8 +6,6 @@ from common.key_flat_obs_wrapper import KeyFlatObsWrapper
 from common.random_empty_env_10 import RandomEmptyEnv_10
 from common.random_key_env_10 import RandomKeyMEnv_10
 from common.reports_util import log_training_process, create_report
-
-sys.path.append('../')
 
 import os
 import time
