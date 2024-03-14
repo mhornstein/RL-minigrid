@@ -1,8 +1,8 @@
 import sys
 
 from algorithms.q_learning import q_learning
-from common.empty_env_wrapper import EmptyEnvWrapper
-from common.key_env_wrapper import KeyEnvWrapper
+from common.env_wrapper import EmptyEnvWrapper
+from common.env_wrapper import KeyEnvWrapper
 from common.key_flat_obs_wrapper import KeyFlatObsWrapper
 from common.random_empty_env_10 import RandomEmptyEnv_10
 from common.random_key_env_10 import RandomKeyMEnv_10
@@ -90,7 +90,7 @@ def run_experiment(env, env_params, algorithm, algorithm_params, tested_paramete
         print("Start training")
 
         algorithm_params_cpy['env'] = env
-        policy, mid_train_policy, states_visits_mean, done_count, episodes_steps, episodes_rewards = algorithm(**algorithm_params_cpy)
+        mid_train_policy, policy, states_visits_mean, done_count, episodes_steps, episodes_rewards = algorithm(**algorithm_params_cpy)
 
         # First - log training process
         parameter_train_log_path = f'{train_log_path}/{tested_parameter}_{parameter_value}'  # Create training log path
