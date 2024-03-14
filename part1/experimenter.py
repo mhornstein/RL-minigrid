@@ -123,9 +123,10 @@ if __name__ == '__main__':
     state_representation = StateRepresentation.ENCODED if Algorithm.QL == algo_type else StateRepresentation.IMAGE
     env = create_env(env_type, state_representation)
 
-    tested_parameters_dict = {**tested_parameters[ENV_PARAMS], **tested_parameters[algo_type]}
     algorithm = q_learning if algo_type == Algorithm.QL else None
     algorithm_params = algorithms_params[algo_type]
+
+    tested_parameters_dict = {**tested_parameters[ENV_PARAMS], **tested_parameters[algo_type]}
 
     report_method = create_tabular_method_report if algo_type == Algorithm.QL else None
 
