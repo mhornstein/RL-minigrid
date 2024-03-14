@@ -69,6 +69,11 @@ class EnvWrapper(gym.Env, ABC):
             state_dim = self.get_encoded_state_dim()
         return state_dim
 
+    def get_board_dims(self):
+        cols = self.env.width - 2
+        rows = self.env.height - 2
+        return cols, rows
+
     def get_action_dim(self):
         return self.env.action_space.n
 
@@ -76,6 +81,9 @@ class EnvWrapper(gym.Env, ABC):
         available_actions = self.get_available_actions()
         sampled_action = random.choice(available_actions)
         return sampled_action
+
+    def get_agent_position(self):
+        return self.env.get_position()
 
     @abstractmethod
     def get_available_actions(self):
@@ -101,8 +109,7 @@ class EmptyEnvWrapper(EnvWrapper):
         return available_actions
 
     def get_encoded_state_dim(self):
-        rows = self.env.height - 2
-        cols = self.env.width - 2
+        cols, rows = self.get_board_dims()
         return cols, rows, agent_directions_space
 
     def get_encoded_current_state(self):
@@ -157,8 +164,7 @@ class KeyEnvWrapper(EnvWrapper):
         return required_pos == element_pos
 
     def get_encoded_state_dim(self):
-        rows = self.env.height - 2
-        cols = self.env.width - 2
+        cols, rows = self.get_board_dims()
         return cols, rows, agent_directions_space, key_state_space, door_state_space  # add 2 more for key carring and door opening
 
     def get_encoded_current_state(self):
