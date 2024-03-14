@@ -114,9 +114,9 @@ class EmptyEnvWrapper(EnvWrapper):
         return cols, rows, agent_directions_space
 
     def get_encoded_current_state(self):
-        agent_col, agent_row = self.env.get_position()
+        agent_col, agent_row = self.get_agent_position()
         agent_direction = self.env.get_direction()
-        state = (agent_col - 1, agent_row - 1, agent_direction)  # remove extra row \ col in the board perimeter
+        state = (agent_col, agent_row, agent_direction)  # remove extra row \ col in the board perimeter
         return state
 
     def step(self, action):
@@ -173,10 +173,9 @@ class KeyEnvWrapper(EnvWrapper):
         Note: the state holds the knowledge of the agent: the agent knows where it is and what its direction is,
         as well as some history of its actions: whether it has picked up the key or unlocked the door for the first time
         '''
-        agent_col, agent_row = self.env.get_position()
+        agent_col, agent_row = self.get_agent_position()
         agent_direction = self.env.get_direction()
-        state = (
-        agent_col - 1, agent_row - 1, agent_direction, int(self.was_key_picked_up), int(self.was_door_unlocked))
+        state = agent_col, agent_row, agent_direction, int(self.was_key_picked_up), int(self.was_door_unlocked)
         return state
 
     def step(self, action):
