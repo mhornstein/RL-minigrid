@@ -1,6 +1,6 @@
 import gym
 import random
-from common.minigrid_x import MissionSpace, Wall, MiniGridEnv, Door, COLOR_NAMES, Goal
+from env.minigrid_x import MissionSpace, Wall, MiniGridEnv, Door, COLOR_NAMES, Goal
 from gym_minigrid.minigrid import Grid
 from gym import spaces
 

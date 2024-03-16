@@ -1,5 +1,5 @@
 import random
-from common.minigrid_x import MissionSpace, Wall, MiniGridEnv, Door, COLOR_NAMES, Goal, Key
+from env.minigrid_x import MissionSpace, Wall, MiniGridEnv, Door, COLOR_NAMES, Goal, Key
 from gym_minigrid.minigrid import Grid
 
 class RandomKeyMEnv_10(MiniGridEnv):

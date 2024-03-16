@@ -1,11 +1,11 @@
 from algorithms.dqn import dqn
 from algorithms.q_learning import q_learning
-from common.env_wrapper import EmptyEnvWrapper, StateRepresentation
-from common.env_wrapper import KeyEnvWrapper
-from common.key_flat_obs_wrapper import KeyFlatObsWrapper
-from common.random_empty_env_10 import RandomEmptyEnv_10
-from common.random_key_env_10 import RandomKeyMEnv_10
-from common.reports_util import log_training_process, create_report
+from env.env_wrapper import EmptyEnvWrapper, StateRepresentation
+from env.env_wrapper import KeyEnvWrapper
+from env.key_flat_obs_wrapper import KeyFlatObsWrapper
+from env.random_empty_env_10 import RandomEmptyEnv_10
+from env.random_key_env_10 import RandomKeyMEnv_10
+from util.reports_util import log_training_process, create_report
 
 import os
 import time
