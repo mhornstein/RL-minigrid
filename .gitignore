@@ -9,8 +9,7 @@
 /algorithms/__pycache__/*.pyc
 /__pycache__/*.pyc
 /result/
-/notebooks/__pycache__/*.pyc
-/notebooks/*.mp4
 /results*
 /env/__pycache__/*.pyc
 /util/__pycache__/*.pyc
+/notebooks/part1-tabular/__pycache__/*.pyc
