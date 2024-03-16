@@ -5,30 +5,35 @@ from torch.optim import SGD
 from collections import namedtuple, deque
 import copy
 import numpy as np
+import math
 
 Transition = namedtuple('transition', ('state', 'action', 'reward', 'next_state'))
 
 class QNN(nn.Module):
-    def __init__(self, action_dim):
+    def __init__(self, state_dim, action_dim):
         super(QNN, self).__init__()
-        self.model = torch.nn.Sequential(
-            torch.nn.Conv2d(3, 32, 5),
-            torch.nn.MaxPool2d((2,2)),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(32, 64, 5),
-            torch.nn.MaxPool2d((2,2)),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(64, 128, 5),
-            torch.nn.MaxPool2d((2,2)),
-            torch.nn.ReLU(),
-            torch.nn.Flatten(),
-            torch.nn.Linear(165888, 512),
-            torch.nn.ReLU(),
-            torch.nn.Linear(512, action_dim)
+        # Simplify the convolution layers to reduce parameters and focus on essential feature extraction
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(3, 16, kernel_size=8, stride=4),  # Reduced number of filters
+            nn.ReLU(),
+            nn.Conv2d(16, 32, kernel_size=4, stride=2),  # Reduced number of filters
+            nn.ReLU(),
+            nn.Conv2d(32, 32, kernel_size=3, stride=1),  # Maintain this layer for spatial feature extraction
+            nn.ReLU()
         )
+        self.flatten = nn.Flatten()
+        # Assuming an adjustment based on the output size from the conv layers
+        self.fc = nn.Linear(41472, state_dim)  # Adjusted based on assumed conv output, leading to a single dense layer
+        self.relu = nn.ReLU()  # ReLU activation function between the linear layers
+        self.output_layer = nn.Linear(state_dim, action_dim)
 
     def forward(self, x):
-        return self.model(x)
+        x = self.conv_layers(x)
+        x = self.flatten(x)
+        x = self.fc(x)
+        x = self.relu(x)  # Applying ReLU activation here
+        x = self.output_layer(x)
+        return x
 
 class ExperienceReplayBuffer:
     def __init__(self, memory_buffer_size):
@@ -112,8 +117,9 @@ def train_policy_network(buffer, policy_net, target_net, batch_size, gamma, opti
 def dqn(env, num_episodes, batch_size, gamma, ep_decay, epsilon,
         target_freq_update, memory_buffer_size, learning_rate, steps_cutoff, train_action_value_freq_update):
     action_dim = env.get_action_dim()
-    policy_net = QNN(action_dim)
-    target_net = QNN(action_dim)
+    state_dim = math.prod(env.get_encoded_state_dim())
+    policy_net = QNN(state_dim, action_dim)
+    target_net = QNN(state_dim, action_dim)
     update_target_net(policy_net, target_net)
     criterion = torch.nn.MSELoss()
 

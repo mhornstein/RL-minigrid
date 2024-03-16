@@ -94,7 +94,7 @@ tested_parameters = {
 }
 
 # Pick the env you want to test: EnvType.EMPTY or EnvType.KEY
-env_type = EnvType.EMPTY
+env_type = EnvType.KEY
 
 # Pick the algorithm you want to test: Algorithm.QL or Algorithm.DQL
 algo_type = Algorithm.QL

@@ -9,3 +9,6 @@
 /algorithms/__pycache__/*.pyc
 /__pycache__/*.pyc
 /result/
+/notebooks/__pycache__/*.pyc
+/notebooks/*.mp4
+/results*
