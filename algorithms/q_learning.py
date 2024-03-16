@@ -49,8 +49,6 @@ def q_learning(env, alpha, gamma, epsilon, ep_decay, num_episodes, steps_cutoff)
         steps_count = 0
         reward_sum = 0
 
-        # env.render()
-
         while not done and steps_count < steps_cutoff:
             # Choose an action a based on current policy (e.g. 𝜀 − 𝑔𝑟𝑒𝑒𝑑𝑦)
             if np.random.uniform(0, 1) < epsilon:
@@ -60,8 +58,6 @@ def q_learning(env, alpha, gamma, epsilon, ep_decay, num_episodes, steps_cutoff)
 
             # You get a reward r. You are now in state s’
             s_tag, r, done = env.step(a)
-
-            # env.render()
 
             # Choose an action a’ from s’ based on current policy.
             q_value = np.max(Q[s_tag][:])
