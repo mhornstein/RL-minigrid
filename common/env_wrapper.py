@@ -135,34 +135,18 @@ class KeyEnvWrapper(EnvWrapper):
     def get_available_actions(self):
         available_actions = [0, 1]
 
-        key_pos = self.env.get_k_pos()
-        door_pos = self.env.get_d_pos()
-
-        if self.can_use_element(key_pos):  # the agent is fronting a key - if so, we can use pick up action (3)
+        if (not self.env.is_carrying_key() and
+                self.env.is_key_front_pos()):  # the agent is fronting a key - if so, we can use pick up action (3)
             available_actions.append(3)
         elif (not self.env.is_door_open() and
               self.env.is_carrying_key() and
-              self.can_use_element(
-                  door_pos)):  # the agent is fronting a door it can open - if so, we can use toggle action (5)
+              self.env.is_door_front_pos()):  # the agent is fronting a door it can open - if so, we can use toggle action (5)
             available_actions.append(5)
-        elif not self.env.is_wall_front_pos():  # the agent is not fronting a key, a door or a wall - if so, we can proceed forward (2)
-            available_actions.append(2) # TODO make it more accurate
+        elif (not self.env.is_wall_front_pos() or
+            self.env.is_door_front_pos() and self.env.is_door_open()):  # the agent is not fronting a key, a closed door or a wall - if so, we can proceed forward (2)
+            available_actions.append(2)
 
         return available_actions
-
-    def can_use_element(self, element_pos):
-        agent_direction = self.env.get_direction()
-        agent_col, agent_row = self.env.get_position()
-
-        if Direction.UP.value == agent_direction:
-            required_pos = agent_col, agent_row - 1
-        elif Direction.DOWN.value == agent_direction:
-            required_pos = agent_col, agent_row + 1
-        elif Direction.LEFT.value == agent_direction:
-            required_pos = agent_col - 1, agent_row
-        else: # Direction.RIGHT.value == agent_direction
-            required_pos = agent_col + 1, agent_row
-        return required_pos == element_pos
 
     def get_encoded_state_dim(self):
         cols, rows = self.get_board_dims()
