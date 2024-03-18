@@ -1,0 +1,6 @@
+alpha,done_episodes_count,total_episodes_count,total_steps_avg,rewards_avg,loss_avg
+0.8,448,500,30.386,8.665099999999999,N/A
+0.85,453,500,27.83,8.79076,N/A
+0.9,451,500,28.352,8.7455,N/A
+0.95,454,500,29.412,8.79496,N/A
+1.0,443,500,30.094,8.56792,N/A
