@@ -80,7 +80,7 @@ def create_table(subplot, header, df):
 
 def plot_bar_chart(df, column_name, tested_parameter, ax):
     df = df[[tested_parameter, column_name]]
-    sns.barplot(data=df, x=tested_parameter, y=column_name, palette=palette, ax=ax)
+    sns.barplot(data=df, x=tested_parameter, y=column_name, hue=tested_parameter, dodge=False, palette=palette, ax=ax)
     ax.set(xlabel=ax.get_xlabel().replace('_', ' '))
     ax.set(ylabel='')
 
@@ -155,8 +155,8 @@ if __name__ == '__main__':
     tested_param = 'goal_reward'
 
     result_path = f'results_{tested_param}'
-    train_results_path = f'../part1/{result_path}/train_result_{tested_param}.csv'
-    test_results_path = f'../part1/{result_path}/test_result_{tested_param}.csv'
-    train_log_path = f'../part1/{result_path}/train_log'
+    train_results_path = f'../{result_path}/train_result_{tested_param}.csv'
+    test_results_path = f'../{result_path}/test_result_{tested_param}.csv'
+    train_log_path = f'../{result_path}/train_log'
 
-    create_report(f'../part1/results_{tested_param}', tested_param, train_results_path, test_results_path, train_log_path)
+    create_report(f'../results_{tested_param}', tested_param, train_results_path, test_results_path, train_log_path)
