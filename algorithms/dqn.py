@@ -133,7 +133,7 @@ def dqn(env, num_episodes, batch_size, gamma, ep_decay, epsilon,
     episodes_loss, episodes_rewards, episodes_steps = [], [], []
 
     for i in range(1, num_episodes+1):
-        print(f'Running episode {i}\\{num_episodes}\nPrinting steps progress (up to {steps_cutoff} steps): ')
+        print(f'\nRunning episode {i}\\{num_episodes}\nPrinting steps progress (up to {steps_cutoff} steps): ')
 
         done = False
         episode_reward = 0
