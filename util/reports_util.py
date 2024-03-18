@@ -81,6 +81,7 @@ def create_table(subplot, header, df):
 def plot_bar_chart(df, column_name, tested_parameter, ax):
     df = df[[tested_parameter, column_name]]
     sns.barplot(data=df, x=tested_parameter, y=column_name, hue=tested_parameter, dodge=False, palette=palette, ax=ax)
+    ax.legend_.remove()
     ax.set(xlabel=ax.get_xlabel().replace('_', ' '))
     ax.set(ylabel='')
 
