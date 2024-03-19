@@ -8,7 +8,9 @@
 /common/__pycache__/*.pyc
 /algorithms/__pycache__/*.pyc
 /__pycache__/*.pyc
-/results*
 /env/__pycache__/*.pyc
 /util/__pycache__/*.pyc
 /notebooks/part1-tabular/__pycache__/*.pyc
+/notebooks/part2-deep/__pycache__/*.pyc
+/notebooks/part2-deep/empty/__pycache__/*.pyc
+/notebooks/part2-deep/key/__pycache__/*.pyc
