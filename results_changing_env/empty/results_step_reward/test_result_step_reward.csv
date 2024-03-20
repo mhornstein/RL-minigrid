@@ -1,0 +1,7 @@
+step_reward,solved,steps_count
+-0.006,True,11
+-0.004,True,17
+-0.002,True,13
+0.0,False,100
+0.002,False,100
+0.004,False,100
