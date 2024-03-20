@@ -4,6 +4,7 @@ import random
 import matplotlib.pyplot as plt
 from enum import Enum
 from abc import ABC, abstractmethod
+from experiment_config import EnvStochasticity
 
 agent_directions_space = 4
 key_state_space = 2
@@ -26,7 +27,7 @@ class EnvWrapper(gym.Env, ABC):
     '''
     This wrapper enables environment customization
     '''
-    def __init__(self, env, step_reward=-0.01, goal_reward=10, state_representation=StateRepresentation.ENCODED):
+    def __init__(self, env, step_reward=-0.01, goal_reward=10, state_representation=StateRepresentation.ENCODED, env_stochasticity=EnvStochasticity.CONSTANT):
         '''
         Initializes the EnvWrapper.
 
@@ -37,15 +38,27 @@ class EnvWrapper(gym.Env, ABC):
             state_representation (StateRepr, optional): The state representation mode.
                                                         Use StateRepr.IMAGE for a full image representation, or StateRepr.ENCODED for an encoded version
                                                         Default is StateRepr.ENCODED
+             env_stochasticity (EnvStochasticity, optional): The environmental stochasticity setting.
+                                                        Use EnvStochasticity.CONSTANT to keep artifacts in their place upon reset,
+                                                        or EnvStochasticity.STOCHASTIC to allow them to change upon reset.
+                                                        Default is EnvStochasticity.CONSTANT.
         '''
         self.state_representation = state_representation
+        self.is_constant = EnvStochasticity.CONSTANT == env_stochasticity
 
-        self.source_env = env
+        if self.is_constant:
+            self.source_env = env # keep track of the original env
+        else:
+            self.env = env
+
         self.set_params(step_reward, goal_reward)
         self.reset()
 
-    def reset(self): # open gym default implementation changes the board. override, as we do not want to change the board upon reset every time
-        self.env = copy.deepcopy(self.source_env)
+    def reset(self):
+        if self.is_constant:
+            self.env = copy.deepcopy(self.source_env) # open gym default implementation changes the board. override, as we do not want to change the board upon reset every time
+        else:
+            self.env.reset()
         return self.get_current_state()
 
     def set_params(self, step_reward, goal_reward):
@@ -111,12 +124,24 @@ class EmptyEnvWrapper(EnvWrapper):
 
     def get_encoded_state_dim(self):
         cols, rows = self.get_board_dims()
-        return cols, rows, agent_directions_space
+        return (cols, rows, # possible location of agent
+                agent_directions_space,
+                3) # 3 Possible location of the goal. Although redundant in the constant stochasitocy setting, it is retained as this represents the general state
+
+    def get_goal_encoded_loc(self):
+        col, row = self.env.get_goal_pos()
+        if col == 8 and row == 1:
+            return 0
+        elif col == 1 and row == 8:
+            return 1
+        else: # col == 8 and row == 8:
+            return 2
 
     def get_encoded_current_state(self):
         agent_col, agent_row = self.get_agent_position()
+        goal_encoded_loc = self.get_goal_encoded_loc()
         agent_direction = self.env.get_direction()
-        state = (agent_col, agent_row, agent_direction)  # remove extra row \ col in the board perimeter
+        state = (agent_col, agent_row, agent_direction, goal_encoded_loc)
         return state
 
     def step(self, action):
@@ -150,7 +175,11 @@ class KeyEnvWrapper(EnvWrapper):
 
     def get_encoded_state_dim(self):
         cols, rows = self.get_board_dims()
-        return cols, rows, agent_directions_space, key_state_space, door_state_space  # add 2 more for key carring and door opening
+        return (cols, rows, # agent location - 8X8 possibilities (ignoring door column)
+                agent_directions_space,  # 4 possible directions
+                2, rows, # key location - 2 possible columns X 8 rows
+                rows, # door location - 1 possible column X 8 rows
+                key_state_space, door_state_space)  # add 2 more for key carring and door opening
 
     def get_encoded_current_state(self):
         '''
@@ -159,7 +188,13 @@ class KeyEnvWrapper(EnvWrapper):
         '''
         agent_col, agent_row = self.get_agent_position()
         agent_direction = self.env.get_direction()
-        state = agent_col, agent_row, agent_direction, int(self.was_key_picked_up), int(self.was_door_unlocked)
+        key_col, key_row = self.env.get_k_pos()
+        _, door_row = self.env.get_d_pos()  # use only row because door always in the same column
+        state = (agent_col, agent_row,
+                 agent_direction,
+                 key_col - 1, key_row - 1,
+                 door_row - 1,
+                 int(self.was_key_picked_up), int(self.was_door_unlocked))
         return state
 
     def step(self, action):

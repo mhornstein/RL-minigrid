@@ -9,6 +9,10 @@ class EnvType(Enum):
     EMPTY = 0
     KEY = 1
 
+class EnvStochasticity(Enum):
+    CONSTANT = 0
+    STOCHASTIC = 1
+
 class Algorithm(Enum):
     QL = 'QL'
     DQN = 'DQN'
@@ -93,8 +97,11 @@ tested_parameters = {
     }
 }
 
+# Pick the env stochasiticity you want: use EnvStochasticity.CONSTANT to keep artifacts in their place upon reset, or use STOCHASTIC to allow them to change upon reset
+env_stochasticity = EnvStochasticity.CONSTANT
+
 # Pick the env you want to test: EnvType.EMPTY or EnvType.KEY
-env_type = EnvType.KEY
+env_type = EnvType.EMPTY
 
 # Pick the algorithm you want to test: Algorithm.QL or Algorithm.DQL
 algo_type = Algorithm.QL

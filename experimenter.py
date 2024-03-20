@@ -13,15 +13,15 @@ from experiment_config import *
 
 NA = 'N/A'
 
-def create_env(env_type, state_representation):
+def create_env(env_type, state_representation, env_stochasticity):
     if env_type == EnvType.EMPTY:
         source_env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
         source_env.reset()
-        env = EmptyEnvWrapper(source_env, state_representation=state_representation)
+        env = EmptyEnvWrapper(source_env, state_representation=state_representation, env_stochasticity=env_stochasticity)
     else:
         source_env = KeyFlatObsWrapper(RandomKeyMEnv_10(render_mode='rgb_array'))
         source_env.reset()
-        env = KeyEnvWrapper(source_env, state_representation=state_representation)
+        env = KeyEnvWrapper(source_env, state_representation=state_representation, env_stochasticity=env_stochasticity)
     return env
 
 def init_results_files(tested_parameter, result_path):
@@ -121,7 +121,7 @@ def run_experiment(env, env_params, algorithm, algorithm_params, tested_paramete
 if __name__ == '__main__':
     start_time = time.time()
     state_representation = StateRepresentation.ENCODED if Algorithm.QL == algo_type else StateRepresentation.IMAGE
-    env = create_env(env_type, state_representation)
+    env = create_env(env_type, state_representation, env_stochasticity)
 
     algorithm = q_learning if algo_type == Algorithm.QL else dqn
     algorithm_params = algorithms_params[algo_type]
