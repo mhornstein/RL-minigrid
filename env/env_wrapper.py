@@ -124,9 +124,13 @@ class EmptyEnvWrapper(EnvWrapper):
 
     def get_encoded_state_dim(self):
         cols, rows = self.get_board_dims()
-        return (cols, rows, # possible location of agent
-                agent_directions_space,
-                3) # 3 Possible location of the goal. Although redundant in the constant stochasitocy setting, it is retained as this represents the general state
+        if self.is_constant:
+            return (cols, rows,  # possible location of agent
+                    agent_directions_space)
+        else:
+            return (cols, rows, # possible location of agent
+                    agent_directions_space,
+                    3) # 3 Possible location of the goal
 
     def get_goal_encoded_loc(self):
         col, row = self.env.get_goal_pos()
@@ -139,10 +143,14 @@ class EmptyEnvWrapper(EnvWrapper):
 
     def get_encoded_current_state(self):
         agent_col, agent_row = self.get_agent_position()
-        goal_encoded_loc = self.get_goal_encoded_loc()
         agent_direction = self.env.get_direction()
-        state = (agent_col, agent_row, agent_direction, goal_encoded_loc)
-        return state
+        if self.is_constant:
+            state = (agent_col, agent_row, agent_direction)
+            return state
+        else:
+            goal_encoded_loc = self.get_goal_encoded_loc()
+            state = (agent_col, agent_row, agent_direction, goal_encoded_loc)
+            return state
 
     def step(self, action):
         _ = self.env.step(action)
@@ -175,11 +183,16 @@ class KeyEnvWrapper(EnvWrapper):
 
     def get_encoded_state_dim(self):
         cols, rows = self.get_board_dims()
-        return (cols, rows, # agent location - 8X8 possibilities (ignoring door column)
-                agent_directions_space,  # 4 possible directions
-                2, rows, # key location - 2 possible columns X 8 rows
-                rows, # door location - 1 possible column X 8 rows
-                key_state_space, door_state_space)  # add 2 more for key carring and door opening
+        if self.is_constant:
+            return (cols, rows,  # agent location - 8X8 possibilities (ignoring door column)
+                    agent_directions_space,  # 4 possible directions
+                    key_state_space, door_state_space)  # add 2 more for key carring and door opening
+        else:
+            return (cols, rows, # agent location - 8X8 possibilities (ignoring door column)
+                    agent_directions_space,  # 4 possible directions
+                    2, rows, # key location - 2 possible columns X 8 rows
+                    rows, # door location - 1 possible column X 8 rows
+                    key_state_space, door_state_space)  # add 2 more for key carring and door opening
 
     def get_encoded_current_state(self):
         '''
@@ -188,14 +201,20 @@ class KeyEnvWrapper(EnvWrapper):
         '''
         agent_col, agent_row = self.get_agent_position()
         agent_direction = self.env.get_direction()
-        key_col, key_row = self.env.get_k_pos()
-        _, door_row = self.env.get_d_pos()  # use only row because door always in the same column
-        state = (agent_col, agent_row,
-                 agent_direction,
-                 key_col - 1, key_row - 1,
-                 door_row - 1,
-                 int(self.was_key_picked_up), int(self.was_door_unlocked))
-        return state
+        if self.is_constant:
+            state = (agent_col, agent_row,
+                     agent_direction,
+                     int(self.was_key_picked_up), int(self.was_door_unlocked))
+            return state
+        else:
+            key_col, key_row = self.env.get_k_pos()
+            _, door_row = self.env.get_d_pos()  # use only row because door always in the same column
+            state = (agent_col, agent_row,
+                     agent_direction,
+                     key_col - 1, key_row - 1,
+                     door_row - 1,
+                     int(self.was_key_picked_up), int(self.was_door_unlocked))
+            return state
 
     def step(self, action):
         # First - log current state
