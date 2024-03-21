@@ -1,0 +1,6 @@
+goal_reward,solved,steps_count
+-10,False,100
+0,True,20
+1,True,22
+5,True,25
+10,True,22

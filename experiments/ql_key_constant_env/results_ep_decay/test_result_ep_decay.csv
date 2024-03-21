@@ -1,0 +1,6 @@
+ep_decay,solved,steps_count
+0.85,False,100
+0.9,True,31
+0.95,True,29
+0.99,True,31
+1,False,100

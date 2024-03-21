@@ -1,0 +1,6 @@
+gamma,solved,steps_count
+0.8,True,20
+0.85,False,100
+0.9,False,100
+0.95,False,100
+1.0,True,19

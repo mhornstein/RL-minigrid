@@ -1,0 +1,4 @@
+ep_decay,done_episodes_count,total_episodes_count,total_steps_avg,rewards_avg,loss_avg
+0.999,830,1000,41.464,7.89366,N/A
+0.9999,312,1000,85.241,2.27071,N/A
+0.99999,210,1000,90.451,1.1975899999999997,N/A
