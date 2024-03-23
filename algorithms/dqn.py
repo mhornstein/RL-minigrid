@@ -1,39 +1,61 @@
 import torch
 import random
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.optim import SGD
 from collections import namedtuple, deque
 import copy
 import numpy as np
 import math
+from enum import Enum
 
 Transition = namedtuple('transition', ('state', 'action', 'reward', 'next_state'))
 
+class DqnVersion(Enum):
+    VANILLA = 'vanilla'
+    DDQN = 'ddqn'
+    DUELING = 'dueling-dqn'
+
+
 class QNN(nn.Module):
-    def __init__(self, state_dim, action_dim):
+    def __init__(self, state_dim, action_dim, dqn_version):
         super(QNN, self).__init__()
-        # Simplify the convolution layers to reduce parameters and focus on essential feature extraction
+        # log network type
+        self.dqn_version = dqn_version
+
         self.conv_layers = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=8, stride=4),  # Reduced number of filters
+            nn.Conv2d(3, 16, kernel_size=8, stride=4),
             nn.ReLU(),
-            nn.Conv2d(16, 32, kernel_size=4, stride=2),  # Reduced number of filters
+            nn.Conv2d(16, 32, kernel_size=4, stride=2),
             nn.ReLU(),
-            nn.Conv2d(32, 32, kernel_size=3, stride=1),  # Maintain this layer for spatial feature extraction
+            nn.Conv2d(32, 32, kernel_size=3, stride=1),
             nn.ReLU()
         )
         self.flatten = nn.Flatten()
-        # Assuming an adjustment based on the output size from the conv layers
-        self.fc = nn.Linear(41472, state_dim)  # Adjusted based on assumed conv output, leading to a single dense layer
-        self.relu = nn.ReLU()  # ReLU activation function between the linear layers
-        self.output_layer = nn.Linear(state_dim, action_dim)
+        self.fc = nn.Linear(41472, state_dim)  # Intermediate dense layer
+
+        if dqn_version == DqnVersion.DUELING: # Dueling architecture layers
+            self.state_value = nn.Linear(state_dim, 1)
+            self.action_advantage = nn.Linear(state_dim, action_dim)
+        else: # Single output layer for VANILLA and DDQN
+            self.output_layer = nn.Linear(state_dim, action_dim)
 
     def forward(self, x):
         x = self.conv_layers(x)
         x = self.flatten(x)
         x = self.fc(x)
-        x = self.relu(x)  # Applying ReLU activation here
-        x = self.output_layer(x)
-        return x
+        x = F.relu(x)
+
+        if self.dqn_version == DqnVersion.DUELING:
+            # Value: How good it is to be in this state
+            value = self.state_value(x)
+            # Advantage: How much better some actions are compared to others in this state
+            advantage = self.action_advantage(x)
+            # Get Q-values: value + normalized-advantage. This way, Q(s,a) = value(s) + advantage(s,a)
+            q_values = value + (advantage - advantage.mean(dim=1, keepdim=True))
+        else: # DDQN or Vanila DQN
+            q_values = self.output_layer(x)
+        return q_values
 
 class ExperienceReplayBuffer:
     def __init__(self, memory_buffer_size):
@@ -87,7 +109,7 @@ def update_epsilon(epsilon, ep_decay):
     ep = max(epsilon * ep_decay, 0.05)
     return ep
 
-def train_policy_network(buffer, policy_net, target_net, batch_size, gamma, optimizer, criterion):
+def train_policy_network(buffer, policy_net, target_net, batch_size, gamma, optimizer, criterion, dqn_version):
     # Step 1: sample from data and create the required tensors
     batch = buffer.sample(batch_size)
     state_tensor = torch.cat(batch.state)
@@ -102,7 +124,13 @@ def train_policy_network(buffer, policy_net, target_net, batch_size, gamma, opti
     # Step 3: Calculate the maximum Q-values for the next states using the target network
     next_q_values_tensor = torch.zeros(batch_size)
     with torch.no_grad():
-        next_q_values_tensor[non_final_state_mask_tensor] = target_net(next_state_tensor).max(1)[0]  # Note: final states remains with reward of 0
+        if dqn_version == DqnVersion.DDQN: # DDQN reduces the overestimation of Q-values by using a more stable target for evaluation
+            # Step 1: Action Selection - best action is selected according to the policy_net
+            next_state_actions = policy_net(next_state_tensor).max(1)[1].unsqueeze(1)
+            # Step 2: Action Evaluation - the evaluation is done according to target_net
+            next_q_values_tensor[non_final_state_mask_tensor] = target_net(next_state_tensor).gather(1, next_state_actions).squeeze()
+        else: # vanila DQN - just choose max Q
+            next_q_values_tensor[non_final_state_mask_tensor] = target_net(next_state_tensor).max(1)[0] # Note: final states remains with reward of 0
     target_q_values = (next_q_values_tensor * gamma) + reward_tensor
 
     # Step 4: Calculate the loss and update the model accordingly
@@ -115,11 +143,12 @@ def train_policy_network(buffer, policy_net, target_net, batch_size, gamma, opti
     return loss.item()
 
 def dqn(env, num_episodes, batch_size, gamma, ep_decay, epsilon,
-        target_freq_update, memory_buffer_size, learning_rate, steps_cutoff, train_action_value_freq_update):
+        target_freq_update, memory_buffer_size, learning_rate, steps_cutoff, train_action_value_freq_update,
+        dqn_version):
     action_dim = env.get_action_dim()
     state_dim = math.prod(env.get_encoded_state_dim())
-    policy_net = QNN(state_dim, action_dim)
-    target_net = QNN(state_dim, action_dim)
+    policy_net = QNN(state_dim, action_dim, dqn_version)
+    target_net = QNN(state_dim, action_dim, dqn_version)
     update_target_net(policy_net, target_net)
     criterion = torch.nn.MSELoss()
 
@@ -155,7 +184,7 @@ def dqn(env, num_episodes, batch_size, gamma, ep_decay, epsilon,
             buffer.push(state, action, reward, next_state)
 
             if len(buffer) >= batch_size and num_steps % train_action_value_freq_update == 0:
-                loss = train_policy_network(buffer, policy_net, target_net, batch_size, gamma, optimizer, criterion)
+                loss = train_policy_network(buffer, policy_net, target_net, batch_size, gamma, optimizer, criterion, dqn_version)
                 episode_loss += loss
 
             num_steps += 1
