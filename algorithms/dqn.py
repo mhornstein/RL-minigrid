@@ -14,8 +14,10 @@ Transition = namedtuple('transition', ('state', 'action', 'reward', 'next_state'
 class DqnVersion(Enum):
     VANILLA = 'vanilla'
     DDQN = 'ddqn'
-    DUELING = 'dueling-dqn'
+    DUELING = 'dueling'
 
+    def __str__(self):
+        return self.value
 
 class QNN(nn.Module):
     def __init__(self, state_dim, action_dim, dqn_version):

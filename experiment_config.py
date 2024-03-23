@@ -1,9 +1,9 @@
 from enum import Enum
-
 import numpy as np
-
 import random
 random.seed(42) # we want to set a seed so our environment will be the same across experiments
+
+from algorithms.dqn import DqnVersion
 
 class EnvType(Enum):
     EMPTY = 0
@@ -60,7 +60,8 @@ algorithms_params = {
         'batch_size': 32,
         'target_freq_update': 10,
         'memory_buffer_size': 10000,
-        'train_action_value_freq_update': 1
+        'train_action_value_freq_update': 1,
+        'dqn_version': DqnVersion.VANILLA
     }
 }
 
@@ -82,6 +83,7 @@ tested_parameters = {
         'ep_decay': [0.85, 0.9, 0.95, 0.99, 1]
     },
     Algorithm.DQN: {
+        'dqn_version': [DqnVersion.DDQN, DqnVersion.VANILLA, DqnVersion.DUELING],
         'learning_rate': [0.00005, 0.0001, 0.0005, 0.001],
         'batch_size': [16, 32, 64, 128, 256],
         'target_freq_update': [4, 10, 16],
@@ -104,4 +106,4 @@ env_stochasticity = EnvStochasticity.CONSTANT
 env_type = EnvType.EMPTY
 
 # Pick the algorithm you want to test: Algorithm.QL or Algorithm.DQL
-algo_type = Algorithm.QL
+algo_type = Algorithm.DQN
