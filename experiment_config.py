@@ -52,7 +52,7 @@ algorithms_params = {
     },
     Algorithm.DQN: {
         'learning_rate': 0.0001,
-        'gamma': 0.999,
+        'gamma': 0.9,
         'epsilon': 1,
         'ep_decay': 0.999,
         'num_episodes': train_num_episodes,
