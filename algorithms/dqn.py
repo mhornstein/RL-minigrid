@@ -1,7 +1,6 @@
 import torch
 import random
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.optim import SGD
 from collections import namedtuple, deque
 import copy
@@ -46,7 +45,6 @@ class QNN(nn.Module):
         x = self.conv_layers(x)
         x = self.flatten(x)
         x = self.fc(x)
-        x = F.relu(x)
 
         if self.dqn_version == DqnVersion.DUELING:
             # Value: How good it is to be in this state
