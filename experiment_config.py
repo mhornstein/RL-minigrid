@@ -51,7 +51,7 @@ algorithms_params = {
         'steps_cutoff': train_steps_cutoff
     },
     Algorithm.DQN: {
-        'learning_rate': 0.0001,
+        'learning_rate': 0.00005,
         'gamma': 0.9,
         'epsilon': 1,
         'ep_decay': 0.999,
@@ -83,7 +83,7 @@ tested_parameters = {
         'ep_decay': [0.85, 0.9, 0.95, 0.99, 1]
     },
     Algorithm.DQN: {
-        'dqn_version': [DqnVersion.DDQN, DqnVersion.VANILLA, DqnVersion.DUELING],
+        'dqn_version': [DqnVersion.VANILLA, DqnVersion.DDQN, DqnVersion.DUELING],
         'learning_rate': [0.00005, 0.0001, 0.0005, 0.001],
         'batch_size': [16, 32, 64, 128, 256],
         'target_freq_update': [4, 10, 16],
@@ -94,8 +94,8 @@ tested_parameters = {
         'train_action_value_freq_update': [1, 4, 8, 16]
     },
     ENV_PARAMS: {
-        'goal_reward': [-10, 0, 1, 5, 10],
-        'step_reward': np.arange(-0.006, 0.005, 0.002).round(3),
+        # 'goal_reward': [-10, 0, 1, 5, 10],
+        # 'step_reward': np.arange(-0.006, 0.005, 0.002).round(3),
     }
 }
 
