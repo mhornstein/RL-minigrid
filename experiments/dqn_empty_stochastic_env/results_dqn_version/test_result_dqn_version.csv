@@ -1,0 +1,4 @@
+dqn_version,solved,steps_count
+vanilla,True,9
+ddqn,True,5
+dueling,False,100
