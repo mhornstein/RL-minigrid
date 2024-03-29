@@ -14,3 +14,6 @@
 /notebooks/part2-deep/__pycache__/*.pyc
 /notebooks/part2-deep/empty/__pycache__/*.pyc
 /notebooks/part2-deep/key/__pycache__/*.pyc
+/notebooks/PartA-Q-Learning/__pycache__/*.pyc
+/notebooks/PartA-Q-Learning/experiments/__pycache__/*.pyc
+/notebooks/PartA-Q-Learning/videos/__pycache__/*.pyc
