@@ -94,7 +94,7 @@ tested_parameters = {
         'train_action_value_freq_update': [1, 4, 8, 16]
     },
     ENV_PARAMS: {
-        'goal_reward': [10],
+        # 'goal_reward': [-10, 0, 1, 5, 10],
         # 'step_reward': np.arange(-0.006, 0.005, 0.002).round(3),
     }
 }
@@ -106,4 +106,4 @@ env_stochasticity = EnvStochasticity.CONSTANT
 env_type = EnvType.EMPTY
 
 # Pick the algorithm you want to test: Algorithm.QL or Algorithm.DQL
-algo_type = Algorithm.QL
+algo_type = Algorithm.DQN

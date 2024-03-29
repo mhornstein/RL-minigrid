@@ -7,7 +7,6 @@ import copy
 import numpy as np
 import math
 from enum import Enum
-import torch.nn.functional as F
 
 Transition = namedtuple('transition', ('state', 'action', 'reward', 'next_state'))
 
@@ -45,7 +44,7 @@ class QNN(nn.Module):
     def forward(self, x):
         x = self.conv_layers(x)
         x = self.flatten(x)
-        x = F.relu(self.fc(x))
+        x = self.fc(x)
 
         if self.dqn_version == DqnVersion.DUELING:
             # Value: How good it is to be in this state
