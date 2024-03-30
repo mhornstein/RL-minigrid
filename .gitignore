@@ -17,3 +17,4 @@
 /notebooks/PartA-Q-Learning/__pycache__/*.pyc
 /notebooks/PartA-Q-Learning/experiments/__pycache__/*.pyc
 /notebooks/PartA-Q-Learning/videos/__pycache__/*.pyc
+/notebooks/PartB-Deep/DQN/empty/__pycache__/*.pyc
