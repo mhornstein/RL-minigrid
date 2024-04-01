@@ -6,6 +6,7 @@ from torch.optim import Adam
 from collections import deque, namedtuple
 import random
 import numpy as np
+import copy
 
 Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state', 'log_prob', 'done'))
 
@@ -101,9 +102,21 @@ def pick_action(state, policy_net):
     return log_prob, action
 
 
-def ppo(env, num_episodes=1000, batch_size=32, gamma=0.99, lr=0.001, eps_clip=0.2, steps_cutoff=100, memory_buffer_size=10000, device='cpu'):
+def create_policy(policy_net):
+    policy_net_snapshot = copy.deepcopy(policy_net)
+    policy_net_snapshot.eval()
+
+    def policy(state):
+        state_tensor = state_to_tensor(state)
+        _, action = pick_action(state_tensor, policy_net_snapshot)
+        return action
+
+    return policy
+
+
+def ppo(env, num_episodes, batch_size, gamma, lr, eps_clip, steps_cutoff, memory_buffer_size, train_freq):
     action_dim = env.get_action_dim()
-    policy_net = CNNActorCritic(action_dim).to(device)
+    policy_net = CNNActorCritic(action_dim)
     optimizer = Adam(policy_net.parameters(), lr=lr)
     buffer = ExperienceReplayBuffer(memory_buffer_size)
 
@@ -135,11 +148,10 @@ def ppo(env, num_episodes=1000, batch_size=32, gamma=0.99, lr=0.001, eps_clip=0.
             # Step 2: update metrics
             episode_reward += reward
             num_steps += 1
-            next_agent_position = env.get_agent_position()
 
+            next_agent_position = env.get_agent_position()
             if agent_position != next_agent_position: # if the agent moved to a new location on the board
                 states_visits_count[next_agent_position] += 1
-
             agent_position = next_agent_position
 
             # Step 3: update memory buffer
@@ -151,7 +163,7 @@ def ppo(env, num_episodes=1000, batch_size=32, gamma=0.99, lr=0.001, eps_clip=0.
             state = next_state
 
             # if possible - train
-            if len(buffer) >= batch_size: # TODO add
+            if len(buffer) >= batch_size and num_steps % train_freq == 0:
                 batch = buffer.sample(batch_size)
                 loss = update_ppo(policy_net, optimizer, batch, gamma, eps_clip)
                 episode_loss += loss
@@ -164,6 +176,13 @@ def ppo(env, num_episodes=1000, batch_size=32, gamma=0.99, lr=0.001, eps_clip=0.
 
         if done:
             done_count += 1
+
+        if num_episodes // 2 == i:
+            mid_train_policy = create_policy(policy_net)
+
+    policy = create_policy(policy_net)
+
+    return mid_train_policy, policy, states_visits_count / num_episodes, done_count, episodes_steps, episodes_rewards, episodes_loss
 
 if __name__ == '__main__':
     from env.env_wrapper import EmptyEnvWrapper, StateRepresentation

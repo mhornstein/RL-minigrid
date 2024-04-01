@@ -1,4 +1,5 @@
 from algorithms.dqn import dqn
+from algorithms.ppo import ppo
 from algorithms.q_learning import q_learning
 from env.env_wrapper import EmptyEnvWrapper, StateRepresentation
 from env.env_wrapper import KeyEnvWrapper
@@ -12,6 +13,12 @@ import time
 from experiment_config import *
 
 NA = 'N/A'
+
+ALGORITHM_IMPL = {
+    Algorithm.QL: q_learning,
+    Algorithm.DQN: dqn,
+    Algorithm.PPO: ppo
+}
 
 def create_env(env_type, state_representation, env_stochasticity):
     if env_type == EnvType.EMPTY:
@@ -123,7 +130,7 @@ if __name__ == '__main__':
     state_representation = StateRepresentation.ENCODED if Algorithm.QL == algo_type else StateRepresentation.IMAGE
     env = create_env(env_type, state_representation, env_stochasticity)
 
-    algorithm = q_learning if algo_type == Algorithm.QL else dqn
+    algorithm = ALGORITHM_IMPL[algo_type]
     algorithm_params = algorithms_params[algo_type]
 
     tested_parameters_dict = {**tested_parameters[ENV_PARAMS], **tested_parameters[algo_type]}
