@@ -105,7 +105,6 @@ def pick_action(state, policy_net):
     log_prob = dist.log_prob(action)
     return log_prob, action
 
-
 def create_policy(policy_net):
     policy_net_snapshot = copy.deepcopy(policy_net)
     policy_net_snapshot.eval()
@@ -116,7 +115,6 @@ def create_policy(policy_net):
         return action
 
     return policy
-
 
 def ppo(env, num_episodes, batch_size, gamma, lr, eps_clip, steps_cutoff, memory_buffer_size, train_freq):
     action_dim = env.get_action_dim()
@@ -187,14 +185,3 @@ def ppo(env, num_episodes, batch_size, gamma, lr, eps_clip, steps_cutoff, memory
     policy = create_policy(policy_net)
 
     return mid_train_policy, policy, states_visits_count / num_episodes, done_count, episodes_steps, episodes_rewards, episodes_loss
-
-if __name__ == '__main__':
-    from env.env_wrapper import EmptyEnvWrapper, StateRepresentation
-    from env.key_flat_obs_wrapper import KeyFlatObsWrapper
-    from env.random_empty_env_10 import RandomEmptyEnv_10
-    from experiment_config import EnvStochasticity
-
-    source_env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
-    source_env.reset()
-    env = EmptyEnvWrapper(source_env, state_representation=StateRepresentation.IMAGE, env_stochasticity=EnvStochasticity.CONSTANT)
-    ppo(env)
