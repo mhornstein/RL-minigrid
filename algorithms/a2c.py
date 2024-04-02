@@ -45,7 +45,7 @@ def create_policy(policy_net): # same as ppo
     return policy
 
 def update_a2c(policy_net, optimizer, states, actions, rewards, dones, gamma):
-    states = torch.tensor(states, dtype=torch.float32).permute(0, 3, 1, 2)
+    states = torch.tensor( np.array(states), dtype=torch.float32).permute(0, 3, 1, 2) # convert list first to numpy array for efficiency reasons (Creating a tensor from a list of numpy.ndarrays is extremely slow)
     actions = torch.tensor(actions)
     rewards = torch.tensor(rewards, dtype=torch.float32)
     dones = torch.tensor(dones, dtype=torch.int)
@@ -89,7 +89,6 @@ def pick_action(state, policy_net):
     log_prob = dist.log_prob(action)
     return log_prob, action
 
-
 def a2c(env, num_episodes, gamma, lr, update_steps, steps_cutoff):
     action_dim = env.get_action_dim()
     policy_net = CNNActorCritic(action_dim)
@@ -113,7 +112,7 @@ def a2c(env, num_episodes, gamma, lr, update_steps, steps_cutoff):
         agent_position = env.get_agent_position()
         states_visits_count[agent_position] += 1
 
-        states, actions, rewards, dones = [], [], [], []  # we do not need a sufficticated buffer to sample from - we only go over the recent history sequentially - no need of prior hostory
+        states, actions, rewards, dones = [], [], [], []  # We do not need a sophisticated buffer for sampling as we sequentially go over the recent history only - no need for prior history
 
         while not done and num_steps <= steps_cutoff:
             print(num_steps, end=" ")
@@ -141,8 +140,9 @@ def a2c(env, num_episodes, gamma, lr, update_steps, steps_cutoff):
 
             # Step 4: if possible - train
             if len(states) >= update_steps + 1 or done:
-                update_a2c(policy_net, optimizer, states, actions, rewards, dones, gamma)
-                states, actions, rewards, dones = [states[-1]], [actions[-1]], [rewards[-1]], [dones[-1]]
+                loss = update_a2c(policy_net, optimizer, states, actions, rewards, dones, gamma)
+                episode_loss += loss
+                states, actions, rewards, dones = [states[-1]], [actions[-1]], [rewards[-1]], [dones[-1]] # "clear" the history
 
         num_steps = steps_cutoff if not done else num_steps
 
@@ -159,15 +159,3 @@ def a2c(env, num_episodes, gamma, lr, update_steps, steps_cutoff):
     policy = create_policy(policy_net)
 
     return mid_train_policy, policy, states_visits_count / num_episodes, done_count, episodes_steps, episodes_rewards, episodes_loss
-
-
-if __name__ == '__main__':
-    from env.env_wrapper import EmptyEnvWrapper, StateRepresentation
-    from env.key_flat_obs_wrapper import KeyFlatObsWrapper
-    from env.random_empty_env_10 import RandomEmptyEnv_10
-    from experiment_config import EnvStochasticity
-
-    source_env = KeyFlatObsWrapper(RandomEmptyEnv_10(render_mode='rgb_array'))
-    source_env.reset()
-    env = EmptyEnvWrapper(source_env, state_representation=StateRepresentation.IMAGE, env_stochasticity=EnvStochasticity.CONSTANT)
-    a2c(env,2, 0.9, 0.1, 5, 50)
