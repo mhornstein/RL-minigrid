@@ -17,6 +17,7 @@ class Algorithm(Enum):
     QL = 'QL'
     DQN = 'DQN'
     PPO = 'PPO'
+    A2C = 'A2C'
 
 ENV_PARAMS = 'Env_params'
 
@@ -73,6 +74,13 @@ algorithms_params = {
         'lr': 0.00005,
         'eps_clip': 0.2,
         'train_freq': 1
+    },
+    Algorithm.A2C: {
+        'gamma': 0.99,
+        'num_episodes': train_num_episodes,
+        'steps_cutoff': train_steps_cutoff,
+        'lr': 0.00005,
+        'train_freq': 1
     }
 }
 
@@ -108,6 +116,11 @@ tested_parameters = {
         'gamma': [0.98, 0.985, 0.99],
         'eps_clip ': [0.1, 0.2, 0.3]
     },
+    Algorithm.A2C: {
+        'update_steps': [1, 2, 5],
+        'gamma': [0.98, 0.985, 0.99],
+        'learning_rate': [0.00005, 0.0001, 0.0005, 0.001]
+    },
     ENV_PARAMS: {
         # 'goal_reward': [-10, 0, 1, 5, 10],
         # 'step_reward': np.arange(-0.006, 0.005, 0.002).round(3),
@@ -121,4 +134,4 @@ env_stochasticity = EnvStochasticity.CONSTANT
 env_type = EnvType.EMPTY
 
 # Pick the algorithm you want to test: Algorithm.QL or Algorithm.DQL
-algo_type = Algorithm.PPO
+algo_type = Algorithm.A2C

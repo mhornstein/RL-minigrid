@@ -1,3 +1,4 @@
+from algorithms.a2c import a2c
 from algorithms.dqn import dqn
 from algorithms.ppo import ppo
 from algorithms.q_learning import q_learning
@@ -17,7 +18,8 @@ NA = 'N/A'
 ALGORITHM_IMPL = {
     Algorithm.QL: q_learning,
     Algorithm.DQN: dqn,
-    Algorithm.PPO: ppo
+    Algorithm.PPO: ppo,
+    Algorithm.A2C: a2c
 }
 
 def create_env(env_type, state_representation, env_stochasticity):

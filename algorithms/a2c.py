@@ -89,7 +89,7 @@ def pick_action(state, policy_net):
     log_prob = dist.log_prob(action)
     return log_prob, action
 
-def a2c(env, num_episodes, gamma, lr, update_steps, steps_cutoff):
+def a2c(env, num_episodes, gamma, lr, train_freq, steps_cutoff):
     action_dim = env.get_action_dim()
     policy_net = CNNActorCritic(action_dim)
     optimizer = Adam(policy_net.parameters(), lr=lr)
@@ -139,7 +139,7 @@ def a2c(env, num_episodes, gamma, lr, update_steps, steps_cutoff):
             state = next_state
 
             # Step 4: if possible - train
-            if len(states) >= update_steps + 1 or done:
+            if len(states) >= train_freq + 1 or done:
                 loss = update_a2c(policy_net, optimizer, states, actions, rewards, dones, gamma)
                 episode_loss += loss
                 states, actions, rewards, dones = [states[-1]], [actions[-1]], [rewards[-1]], [dones[-1]] # "clear" the history
