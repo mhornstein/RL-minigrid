@@ -44,7 +44,7 @@ class CNNActorCritic(nn.Module):
             nn.Flatten()
         )
 
-        self.fc = nn.Linear(41472, 512)  # Adjust this size based on the output of conv_layers
+        self.fc = nn.Linear(41472, 512)
         self.actor = nn.Linear(512, num_actions)
         self.critic = nn.Linear(512, 1)
 
@@ -63,29 +63,33 @@ def update_ppo(policy_net, optimizer, batch, gamma, eps_clip):
     old_log_probs = torch.stack(batch.log_prob)
     is_terminal = torch.tensor(batch.done, dtype=torch.float32).unsqueeze(1)
 
-    # Get the current policy outputs for old states
+    # Step 1: get current policy outputs for old states
     new_probs, state_values = policy_net(states)
     dist = Categorical(new_probs)
     new_log_probs = dist.log_prob(actions.squeeze(-1)).unsqueeze(1)
 
-    # Calculate the advantages
+    # Step 2: calculate the advantages
     with torch.no_grad():
         _, next_state_values = policy_net(next_states)
     returns = rewards + gamma * next_state_values * (1 - is_terminal)
     advantages = (returns - state_values).detach()  # Detach delta to prevent influencing the policy gradient
 
-    # Calculate the ratio (pi_theta / pi_theta_old)
+    # Step 3: Calculate the ratio (pi_theta / pi_theta_old) - this is sometimes also referred to as "the Momentum"
     ratios = torch.exp(new_log_probs - old_log_probs)
 
-    # Compute Policy Loss
+    # Step 4: Compute Policy Loss (the PPO Clip Objective function)
+    # This Objective function minimizes a clipped version of the objective to
+    # prevent the policy from changing too much to help maintain stable training.
+    # This is achieved by taking the minimum between the unclipped and clipped ratios
+    # multiplied by advantages.
     surr1 = ratios * advantages
     surr2 = torch.clamp(ratios, 1.0 - eps_clip, 1.0 + eps_clip) * advantages
     policy_loss = -torch.min(surr1, surr2).mean()
 
-    # Computing the value loss
+    # Step 5: Computing the value loss (plain old MSE)
     value_loss = F.mse_loss(state_values, returns)
 
-    # Take gradient step
+    # Step 6: combine policy loss and value loss and take gradient step
     optimizer.zero_grad()
     loss = policy_loss + 0.5 * value_loss
     loss.backward()
@@ -162,7 +166,7 @@ def ppo(env, num_episodes, batch_size, gamma, lr, eps_clip, steps_cutoff, memory
 
             state = next_state
 
-            # if possible - train
+            # Step 4: if possible - train
             if len(buffer) >= batch_size and num_steps % train_freq == 0:
                 batch = buffer.sample(batch_size)
                 loss = update_ppo(policy_net, optimizer, batch, gamma, eps_clip)
