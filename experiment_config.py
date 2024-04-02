@@ -65,14 +65,14 @@ algorithms_params = {
         'dqn_version': DqnVersion.VANILLA
     },
     Algorithm.PPO: {
-        'gamma': 0.9,
+        'gamma': 0.99,
         'num_episodes': train_num_episodes,
         'steps_cutoff': train_steps_cutoff,
         'batch_size': 32,
         'memory_buffer_size': 10000,
-        'lr': 0.001,
+        'lr': 0.00005,
         'eps_clip': 0.2,
-        'train_freq': 50 # TODO change
+        'train_freq': 1
     }
 }
 
@@ -105,10 +105,8 @@ tested_parameters = {
         'train_action_value_freq_update': [1, 4, 8, 16]
     },
     Algorithm.PPO: {
-        'gamma': [0.9, 0.95, 0.999],
-        'batch_size': [32, 64],
-        'lr': [0.00001, 0.00005, 0.0001, 0.0005, 0.001],
-        'train_freq': [1, 4, 8, 16, 32]
+        'gamma': [0.98, 0.985, 0.99],
+        'eps_clip ': [0.1, 0.2, 0.3]
     },
     ENV_PARAMS: {
         # 'goal_reward': [-10, 0, 1, 5, 10],
