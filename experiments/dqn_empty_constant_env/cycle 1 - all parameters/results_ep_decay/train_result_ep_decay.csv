@@ -1,0 +1,4 @@
+ep_decay,done_episodes_count,total_episodes_count,total_steps_avg,rewards_avg,loss_avg
+0.9,0,500,100.0,-1.0000000000000004,nan
+0.95,0,500,100.0,-1.0000000000000004,nan
+0.999,1,500,99.992,-0.9798800000000004,nan

@@ -1,0 +1,6 @@
+batch_size,solved,steps_count
+16,True,16
+32,False,100
+64,False,100
+128,True,15
+256,False,100

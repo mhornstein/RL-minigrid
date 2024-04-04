@@ -1,0 +1,5 @@
+learning_rate,solved,steps_count
+5e-05,True,15
+0.0001,False,100
+0.0005,False,100
+0.001,False,100
