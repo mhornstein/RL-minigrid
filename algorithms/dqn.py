@@ -5,7 +5,6 @@ from torch.optim import SGD
 from collections import namedtuple, deque
 import copy
 import numpy as np
-import math
 from enum import Enum
 import torch.nn.functional as F
 
@@ -20,7 +19,7 @@ class DqnVersion(Enum):
         return self.value
 
 class QNN(nn.Module):
-    def __init__(self, state_dim, action_dim, dqn_version):
+    def __init__(self, action_dim, dqn_version):
         super(QNN, self).__init__()
         # log network type
         self.dqn_version = dqn_version
@@ -34,13 +33,13 @@ class QNN(nn.Module):
             nn.ReLU()
         )
         self.flatten = nn.Flatten()
-        self.fc = nn.Linear(41472, state_dim)  # Intermediate dense layer
+        self.fc = nn.Linear(41472, 512)  # Intermediate dense layer
 
         if dqn_version == DqnVersion.DUELING: # Dueling architecture layers
-            self.state_value = nn.Linear(state_dim, 1)
-            self.action_advantage = nn.Linear(state_dim, action_dim)
+            self.state_value = nn.Linear(512, 1)
+            self.action_advantage = nn.Linear(512, action_dim)
         else: # Single output layer for VANILLA and DDQN
-            self.output_layer = nn.Linear(state_dim, action_dim)
+            self.output_layer = nn.Linear(512, action_dim)
 
     def forward(self, x):
         x = self.conv_layers(x)
@@ -147,9 +146,8 @@ def dqn(env, num_episodes, batch_size, gamma, ep_decay, epsilon,
         target_freq_update, memory_buffer_size, learning_rate, steps_cutoff, train_action_value_freq_update,
         dqn_version):
     action_dim = env.get_action_dim()
-    state_dim = math.prod(env.get_encoded_state_dim())
-    policy_net = QNN(state_dim, action_dim, dqn_version)
-    target_net = QNN(state_dim, action_dim, dqn_version)
+    policy_net = QNN(action_dim, dqn_version)
+    target_net = QNN(action_dim, dqn_version)
     update_target_net(policy_net, target_net)
     criterion = torch.nn.MSELoss()
 
