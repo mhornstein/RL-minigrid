@@ -25,7 +25,7 @@ class ExperienceReplayBuffer:
     def __len__(self):
         return len(self.buffer)
 
-def state_to_tensor(state, done=False): # same as dqn
+def state_to_tensor(state, done=False):
     if done:
         # This tensor serves as a placeholder representing the next state when the agent
         # reaches a terminal state (done=True). In the neural network training process,

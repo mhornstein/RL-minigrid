@@ -36,6 +36,11 @@ class SequentialExperienceReplayBuffer:
 
 def state_to_tensor(state, done=False): # same as dqn
     if done:
+        # This tensor serves as a placeholder representing the next state when the agent
+        # reaches a terminal state (done=True). In the neural network training process,
+        # the evaluation of next state values is not considered for backpropagation
+        # calculations. Therefore, using this placeholder does not impact the accuracy
+        # of the network's updates. The value predicted will be zeroed-out by the loss calcualtion.
         return torch.zeros((1, 3, 320, 320), dtype=torch.float32)
     else:
         return torch.tensor(state, dtype=torch.float32).permute(2, 0, 1).unsqueeze(0)
@@ -87,6 +92,7 @@ def update_a2c(policy_net, optimizer, transitions, gamma, entropy_weight):
     - optimizer: The optimizer.
     - transitions: A batch of experience transitions.
     - gamma: Discount factor for future rewards.
+    - entropy_weight: The weight given to the entropy term in the loss calculation, to balance exploration and exploitation.
 
     Returns:
     - loss: The computed loss for this batch of transitions.
