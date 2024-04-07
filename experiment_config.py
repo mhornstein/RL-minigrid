@@ -66,7 +66,7 @@ algorithms_params = {
         'dqn_version': DqnVersion.VANILLA
     },
     Algorithm.PPO: {
-        'gamma': 0.99,
+        'gamma': 0.999,
         'num_episodes': train_num_episodes,
         'steps_cutoff': train_steps_cutoff,
         'batch_size': 32,
@@ -76,11 +76,12 @@ algorithms_params = {
         'train_freq': 1
     },
     Algorithm.A2C: {
-        'gamma': 0.99,
-        'num_episodes': train_num_episodes,
+        'train_freq': 200,
+        'gamma': 0.9,
+        'num_episodes': 1000,
         'steps_cutoff': train_steps_cutoff,
-        'lr': 0.00005,
-        'train_freq': 1
+        'learning_rate': 0.0001,
+        'entropy_weight': 0.01,
     }
 }
 
@@ -102,14 +103,14 @@ tested_parameters = {
         'ep_decay': [0.85, 0.9, 0.95, 0.99, 1]
     },
     Algorithm.DQN: {
-        'dqn_version': [DqnVersion.VANILLA, DqnVersion.DDQN, DqnVersion.DUELING],
+        # 'dqn_version': [DqnVersion.VANILLA, DqnVersion.DDQN, DqnVersion.DUELING],
         'learning_rate': [0.00005, 0.0001, 0.0005, 0.001],
-        'batch_size': [16, 32, 64, 128, 256],
-        'target_freq_update': [4, 10, 16],
-        'memory_buffer_size': [100, 500, 1000, 10000],
         'gamma': [0.9, 0.95, 0.999],
         'ep_decay': [0.9, 0.95, 0.999],
-        'epsilon': [0.7, 0.9, 1.0],
+        'batch_size': [16, 32, 64, 128],
+        'target_freq_update': [4, 10, 16],
+        # 'memory_buffer_size': [100, 500, 1000, 10000],
+        # 'epsilon': [0.7, 0.9, 1.0],
         'train_action_value_freq_update': [1, 4, 8, 16]
     },
     Algorithm.PPO: {
@@ -117,9 +118,10 @@ tested_parameters = {
         'eps_clip ': [0.1, 0.2, 0.3]
     },
     Algorithm.A2C: {
-        'update_steps': [1, 2, 5],
-        'gamma': [0.98, 0.985, 0.99],
-        'learning_rate': [0.00005, 0.0001, 0.0005, 0.001]
+        'gamma': [0.8, 0.85, 0.9, 0.95, 0.98],
+        'learning_rate': [0.0001, 0.0005, 0.00001, 0.00005, 0.000001],
+        'train_freq': [100, 200, 500, 1000, 2000],
+        'entropy_weight': [0.001, 0.005, 0.01, 0.05, 0.1]
     },
     ENV_PARAMS: {
         # 'goal_reward': [-10, 0, 1, 5, 10],
@@ -131,7 +133,7 @@ tested_parameters = {
 env_stochasticity = EnvStochasticity.CONSTANT
 
 # Pick the env you want to test: EnvType.EMPTY or EnvType.KEY
-env_type = EnvType.EMPTY
+env_type = EnvType.KEY
 
 # Pick the algorithm you want to test: Algorithm.QL or Algorithm.DQL
-algo_type = Algorithm.A2C
+algo_type = Algorithm.DQN
