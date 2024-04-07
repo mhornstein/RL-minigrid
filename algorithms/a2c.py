@@ -135,7 +135,7 @@ def update_a2c(policy_net, optimizer, transitions, gamma, entropy_weight):
 
     return loss.item()
 
-def a2c2(env, num_episodes, steps_cutoff, gamma, learning_rate, train_freq, entropy_weight):
+def a2c(env, num_episodes, steps_cutoff, gamma, learning_rate, train_freq, entropy_weight):
     action_dim = env.get_action_dim()
     policy_net = CNNActorCritic(action_dim)
     optimizer = Adam(policy_net.parameters(), lr=learning_rate)
@@ -161,14 +161,14 @@ def a2c2(env, num_episodes, steps_cutoff, gamma, learning_rate, train_freq, entr
         states_visits_count[agent_position] += 1
 
         while not done and num_steps <= steps_cutoff:
-            # print(num_steps, end=" ")
+            print(num_steps, end=" ")
 
             # Step 1: pick an action
             with torch.no_grad():
                 action_probs, state_value = policy_net(state)
             dist = Categorical(action_probs)
             action = dist.sample()
-            print(f'{action.item()}', end = ' ')
+            # print(f'{action.item()}', end = ' ')
 
             next_state, reward, done = env.step(action.item())
             next_state = state_to_tensor(next_state, done)
@@ -212,7 +212,7 @@ def a2c2(env, num_episodes, steps_cutoff, gamma, learning_rate, train_freq, entr
 
         if done:
             done_count += 1
-            print("done! " , end = ' ')
+            # print("done! " , end = ' ')
 
         if num_episodes // 2 == i:
             mid_train_policy = create_policy(policy_net)
