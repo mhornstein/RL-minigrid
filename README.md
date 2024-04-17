@@ -28,11 +28,11 @@ During the experiments, you can expect the following:
   2. `test_result_<hyperparameter name>.csv` and `train_result_<hyperparameter name>.csv`: CSV files containing the raw data used to generate the `results_plot.png`.
   3. `train_log`: A directory containing training results for each hyperparameter. For each tested value of the hyperparameter, graphs showing loss, reward, and steps convergence are plotted.
 
-You can access a subset of the results produced during the project in the "experiments" directory committed to this repository.
+You can access a subset of the results produced during the work on the project in the "experiments" directory committed to this repository.
 
 ### Notebooks
 
-The code presented in the Python script was further adapted into well-structured and ordered Colab notebooks summarizing the findings, attached to this repository.
+The code presented in the Python scripts was further adapted into well-structured and ordered Colab notebooks summarizing the findings, attached to this repository.
 
 ### Report
 
@@ -40,7 +40,7 @@ The report is attached as a PDF and further elaborates and summarizes the result
 
 ## Tested Environment
 
-All Python scripts within this repository have been tested in the following environment:
+The `experimenter.py` script have been tested in the following environment:
 
 -   Operating System: Windows 10
 -   Python Version: 3.10.8
