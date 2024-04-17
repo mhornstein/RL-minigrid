@@ -1,3 +1,4 @@
+
 # Minigrid Solver using Tabular and Deep Reinforcement Learning Methods
 
 This project presents the use of Reinforcement Learning to solve the Minigrid game, a task-oriented 2D grid-based puzzle.
@@ -14,7 +15,7 @@ In this section, one can explore how different hyperparameter values affect the 
 python experimenter.py
 ```
 
-To customize the configuration for the experiments, adjust the settings in the `experiment_config.py` file. It is well-documented to assist in this task. Note that for experimenting with various hyperparameter values, simply update the `tested_parameters` dictionary as needed.
+To customize the configuration for the experiments, adjust the settings in the `experiment_config.py` file. It is well-documented to assist in this task. Note that for experimenting with different hyperparameter values, simply update the `tested_parameters` dictionary as needed.
 
 #### Experiment Results
 
@@ -27,21 +28,21 @@ During the experiments, you can expect the following:
   2. `test_result_<hyperparameter name>.csv` and `train_result_<hyperparameter name>.csv`: CSV files containing the raw data used to generate the `results_plot.png`.
   3. `train_log`: A directory containing training results for each hyperparameter. For each tested value of the hyperparameter, graphs showing loss, reward, and steps convergence are plotted.
 
-You can access the results used in this project under the "experiments" directory committed in this repository.
+You can access a subset of the results produced during the project in the "experiments" directory committed to this repository.
 
 ### Notebooks
 
-This section presents videos and graphs demonstrating the performance of the models.
+The code presented in the Python script was further adapted into well-structured and ordered Colab notebooks summarizing the findings, attached to this repository.
 
 ### Report
 
-The link to the report can be found [here](https://docs.google.com/document/d/1Adr4HvdUHRMEbpAqIoUV9bs__RgAsYOPMriFdsMucH0/edit?usp=sharing).
+The report is attached as a PDF and further elaborates and summarizes the results.
 
 ## Tested Environment
 
-All code within this repository has been tested in the following environment:
+All Python scripts within this repository have been tested in the following environment:
 
-- Operating System: Windows 10
-- Python Version: 3.10.8
+-   Operating System: Windows 10
+-   Python Version: 3.10.8
 
-The notebooks were also tested in the Google Colab online environment.
+The notebooks were tested in the Google Colab online environment.
